@@ -1,0 +1,1 @@
+export { fetchAPI } from "./api"
