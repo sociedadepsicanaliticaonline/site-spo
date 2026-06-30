@@ -14,11 +14,11 @@ function Logo({ className, variant = "default", href = "/" }: LogoProps) {
   const img = variant === "light" ? logoDarkSrc : logoSrc
 
   return (
-    <Link href={href} className={cn("inline-flex items-center", className)}>
+    <Link href={href} className={cn("inline-flex items-center shrink-0", className)}>
       <Image
         src={img}
         alt="SPO — Sociedade Psicanalítica Online"
-        className="h-[60px] w-auto"
+        className="h-[60px] w-auto shrink-0"
         priority
       />
     </Link>

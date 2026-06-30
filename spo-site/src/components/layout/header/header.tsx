@@ -34,16 +34,16 @@ function Header() {
           : "bg-white border-b border-transparent"
       )}
     >
-      <Container className="flex items-center justify-between h-16 md:h-20">
-        <div className="flex items-center gap-8">
+      <Container className="flex items-center justify-between gap-4 lg:gap-6 h-16 md:h-20">
+        <div className="flex items-center gap-4 lg:gap-6 min-w-0">
           <Logo />
           <DesktopNav className="hidden lg:flex" />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <SearchBar />
           <Link
             href="#"
-            className="hidden sm:inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary text-white body-sm font-medium hover:bg-primary-light transition-colors ml-2"
+            className="hidden xl:inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg bg-primary text-white body-sm font-medium hover:bg-primary-light transition-colors ml-2"
           >
             Portal do Aluno
           </Link>

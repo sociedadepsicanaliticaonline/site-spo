@@ -23,7 +23,7 @@ function DesktopNav({ className }: DesktopNavProps) {
             key={item.id}
             href={item.href}
             className={cn(
-              "inline-flex items-center gap-1 px-4 py-2 rounded-lg body-md font-medium transition-colors",
+              "inline-flex items-center gap-1 px-3 py-2 rounded-lg body-md font-medium transition-colors whitespace-nowrap",
               isActive
                 ? "text-primary bg-primary/5"
                 : "text-text hover:text-primary hover:bg-surface"
