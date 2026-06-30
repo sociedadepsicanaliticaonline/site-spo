@@ -18,6 +18,8 @@ export const footerColumns: FooterColumn[] = [
     links: [
       { label: "Coordenadores", href: "/coordenadores" },
       { label: "Cartéis", href: "/carteis" },
+      { label: "Nossa (Re)Vista", href: "/nossa-revista" },
+      { label: "Nossos Livros", href: "/nossos-livros" },
       { label: "Produção Psicanalítica", href: "/producao-psicanalitica" },
     ],
   },
