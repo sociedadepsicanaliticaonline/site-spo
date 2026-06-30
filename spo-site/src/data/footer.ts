@@ -16,7 +16,6 @@ export const footerColumns: FooterColumn[] = [
     id: "institucional",
     title: "Institucional",
     links: [
-      { label: "Coordenadores", href: "/coordenadores" },
       { label: "Cartéis", href: "/carteis" },
       { label: "Nossa (Re)Vista", href: "/nossa-revista" },
       { label: "Nossos Livros", href: "/nossos-livros" },

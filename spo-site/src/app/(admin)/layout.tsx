@@ -9,7 +9,6 @@ import {
   GraduationCap,
   Calendar,
   FileText,
-  Users,
   Settings,
   Menu,
   X,
@@ -27,7 +26,6 @@ const navItems = [
   { href: "/admin/carteis", label: "Cartéis", icon: Network },
   { href: "/admin/blog", label: "Blog", icon: FileText },
   { href: "/admin/testemunhos", label: "Testemunhos", icon: Quote },
-  { href: "/admin/coordenadores", label: "Coordenadores", icon: Users },
   { href: "/admin/media", label: "Mídia", icon: ImageIcon },
   { href: "/admin/config", label: "Configurações", icon: Settings },
 ]

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FileText, GraduationCap, Calendar, Users, Settings, ArrowRight, Network, Quote, Image as ImageIcon } from "lucide-react"
+import { FileText, GraduationCap, Calendar, Settings, ArrowRight, Network, Quote, Image as ImageIcon } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -9,7 +9,6 @@ import {
   useAdminBlog,
   useAdminCourses,
   useAdminEvents,
-  useAdminCoordinators,
   useAdminCartels,
   useAdminTestimonials,
 } from "@/hooks"
@@ -55,14 +54,6 @@ const sections = [
     color: "text-primary",
     bg: "bg-primary/10",
   },
-  {
-    title: "Coordenadores",
-    description: "Gerencie o corpo docente",
-    href: "/admin/coordenadores",
-    icon: Users,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
 ]
 
 export default function AdminDashboardPage() {
@@ -71,7 +62,6 @@ export default function AdminDashboardPage() {
   const { events, isLoaded: eventsLoaded } = useAdminEvents()
   const { carteis, isLoaded: carteisLoaded } = useAdminCartels()
   const { testimonials, isLoaded: testimonialsLoaded } = useAdminTestimonials()
-  const { coordinators, isLoaded: coordinatorsLoaded } = useAdminCoordinators()
 
   const counts = {
     Blog: postsLoaded ? posts.length : "—",
@@ -79,7 +69,6 @@ export default function AdminDashboardPage() {
     Eventos: eventsLoaded ? events.length : "—",
     Cartéis: carteisLoaded ? carteis.length : "—",
     Testemunhos: testimonialsLoaded ? testimonials.length : "—",
-    Coordenadores: coordinatorsLoaded ? coordinators.length : "—",
   }
 
   return (
