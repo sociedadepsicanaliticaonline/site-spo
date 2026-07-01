@@ -44,21 +44,6 @@ export interface Course {
   createdAt: string
 }
 
-export interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  content?: string
-  image: string
-  author: Author
-  category: Category
-  tags: Tag[]
-  publishedAt: string
-  featured: boolean
-  readingTime: string
-}
-
 export interface Event {
   id: string
   title: string

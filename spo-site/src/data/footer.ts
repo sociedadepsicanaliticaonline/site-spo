@@ -8,7 +8,6 @@ export const footerColumns: FooterColumn[] = [
       { label: "Home", href: "/" },
       { label: "Sobre", href: "/sobre" },
       { label: "Eventos", href: "/eventos" },
-      { label: "Blog", href: "/blog" },
     ],
   },
   {

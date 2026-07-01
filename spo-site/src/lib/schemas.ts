@@ -20,21 +20,6 @@ export const tagSchema = z.object({
   slug: z.string().min(1, "Slug da tag é obrigatório"),
 })
 
-export const blogPostSchema = z.object({
-  id: z.string(),
-  title: z.string().min(3, "Título deve ter pelo menos 3 caracteres"),
-  slug: z.string().min(3, "Slug deve ter pelo menos 3 caracteres"),
-  excerpt: z.string().min(10, "Resumo deve ter pelo menos 10 caracteres"),
-  content: z.string().optional(),
-  image: z.string().min(1, "Imagem é obrigatória"),
-  author: authorSchema,
-  category: categorySchema,
-  tags: z.array(tagSchema).default([]),
-  publishedAt: z.string().min(1, "Data de publicação é obrigatória"),
-  featured: z.boolean().default(false),
-  readingTime: z.string().min(1, "Tempo de leitura é obrigatório"),
-})
-
 export const courseSchema = z.object({
   id: z.string(),
   title: z.string().min(3, "Título deve ter pelo menos 3 caracteres"),
@@ -169,7 +154,6 @@ export const siteConfigSchema = z.object({
   }),
 })
 
-export type BlogPostFormData = z.infer<typeof blogPostSchema>
 export type CourseFormData = z.infer<typeof courseSchema>
 export type EventFormData = z.infer<typeof eventSchema>
 export type CoordinatorFormData = z.infer<typeof coordinatorSchema>

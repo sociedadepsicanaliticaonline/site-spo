@@ -1,12 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { FileText, GraduationCap, Calendar, Settings, ArrowRight, Network, Quote, BookOpen, UserCheck, UserCog } from "lucide-react"
+import { GraduationCap, Calendar, Settings, ArrowRight, Network, Quote, BookOpen, UserCheck, UserCog } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
-  useAdminBlog,
   useAdminCourses,
   useAdminEvents,
   useAdminCartels,
@@ -37,14 +36,6 @@ const sections = [
     description: "Grupos de supervisão",
     href: "/admin/supervisoes",
     icon: UserCog,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    title: "Blog",
-    description: "Gerencie artigos e reflexões",
-    href: "/admin/blog",
-    icon: FileText,
     color: "text-primary",
     bg: "bg-primary/10",
   },
@@ -83,7 +74,6 @@ const sections = [
 ]
 
 export default function AdminDashboardPage() {
-  const { posts, isLoaded: postsLoaded } = useAdminBlog()
   const { courses, isLoaded: coursesLoaded } = useAdminCourses()
   const { events, isLoaded: eventsLoaded } = useAdminEvents()
   const { carteis, isLoaded: carteisLoaded } = useAdminCartels()
@@ -92,7 +82,6 @@ export default function AdminDashboardPage() {
   const { supervisions, isLoaded: supervisionsLoaded } = useAdminSupervisions()
 
   const counts: Record<string, number | string> = {
-    Blog: postsLoaded ? posts.length : "—",
     Seminários: coursesLoaded ? courses.length : "—",
     Eventos: eventsLoaded ? events.length : "—",
     Cartéis: carteisLoaded ? carteis.length : "—",

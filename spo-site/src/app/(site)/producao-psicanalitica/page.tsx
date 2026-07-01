@@ -4,8 +4,6 @@ import { CTASection } from "@/components/sections/cta-section"
 import { Container } from "@/components/layout/container"
 import { SectionHeader } from "@/components/sections/section-header"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
-import { BlogCard } from "@/components/cards/blog-card"
-import { blogPosts } from "@/data/blog"
 import { FileText, BookOpen, Video, Podcast } from "lucide-react"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
@@ -17,10 +15,6 @@ export const metadata: Metadata = {
 }
 
 export default function ProducaoPage() {
-  const producaoPosts = blogPosts.filter((post) =>
-    ["Teoria", "Novidades"].includes(post.category.name)
-  )
-
   const categories = [
     {
       icon: <FileText className="h-6 w-6" />,
@@ -83,26 +77,9 @@ export default function ProducaoPage() {
 
       <AboutSection
         title="Produção de Conteúdo"
-        subtitle="Blog e Publicações"
-        description="Artigos e reflexões produzidos por nossos professores sobre temas atuais da psicanálise."
+        subtitle="Publicações e Pesquisas"
+        description="A SPO incentiva e divulga a produção acadêmica de seus professores e alunos, contribuindo para o avanço do saber psicanalítico."
       />
-
-      <section className="py-16 md:py-24 bg-surface">
-        <Container>
-          <SectionHeader
-            title="Últimas Publicações"
-            subtitle="Artigos Recentes"
-            description="Confira os artigos mais recentes publicados por nossos professores."
-          />
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {producaoPosts.slice(0, 3).map((post) => (
-              <StaggerItem key={post.id}>
-                <BlogCard post={post} />
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-        </Container>
-      </section>
 
       <section className="py-16 md:py-24 bg-white">
         <Container className="max-w-3xl">

@@ -1,5 +1,4 @@
 export { useMediaQuery } from "./use-media-query"
-export { useAdminBlog } from "./use-admin-blog"
 export { useAdminCourses } from "./use-admin-courses"
 export { useAdminEvents } from "./use-admin-events"
 export { useAdminCoordinators } from "./use-admin-coordinators"

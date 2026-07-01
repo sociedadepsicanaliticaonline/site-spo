@@ -4,12 +4,10 @@ import { FeaturesSection } from "@/components/sections/features-section"
 import { StatsSection } from "@/components/sections/stats-section"
 import { CoursesSection } from "@/components/sections/courses-section"
 import { EventsSection } from "@/components/sections/events-section"
-import { BlogSection } from "@/components/sections/blog-section"
 import { TestimonialsSection } from "@/components/sections/testimonials-section"
 import { CTASection } from "@/components/sections/cta-section"
 import { getFeaturedCourses } from "@/data/courses"
 import { getUpcomingEvents } from "@/data/events"
-import { getFeaturedPosts } from "@/data/blog"
 import { testimonials } from "@/data/testimonials"
 import { BookOpen, Users, Globe, Heart } from "lucide-react"
 import type { Metadata } from "next"
@@ -29,7 +27,6 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const featuredCourses = getFeaturedCourses()
   const upcomingEvents = getUpcomingEvents()
-  const featuredPosts = getFeaturedPosts()
 
   const schema = {
     "@context": "https://schema.org",
@@ -110,13 +107,6 @@ export default function HomePage() {
         subtitle="Agenda SPO"
         description="Webinários, jornadas e grupos de estudo para aprofundar seu conhecimento."
         events={upcomingEvents}
-      />
-      <BlogSection
-        title="Artigos & Reflexões"
-        subtitle="Conteúdo"
-        description="Artigos, ensaios e reflexões sobre psicanálise escritos por nossos professores e colaboradores."
-        posts={featuredPosts}
-        featured
       />
       <TestimonialsSection
         title="O Que Nossos Alunos Dizem"

@@ -5,7 +5,6 @@ export const NAVIGATION_ITEMS = [
   { id: "eventos", label: "Eventos", href: "/eventos" },
   { id: "nossa-revista", label: "Nossa (Re)Vista", href: "/nossa-revista" },
   { id: "nossos-livros", label: "Nossos Livros", href: "/nossos-livros" },
-  { id: "blog", label: "Blog", href: "/blog" },
 ] as const
 
 export const FOOTER_NAVIGATION = {
@@ -15,7 +14,6 @@ export const FOOTER_NAVIGATION = {
       { label: "Home", href: "/" },
       { label: "Seminários", href: "/seminarios" },
       { label: "Sobre", href: "/sobre" },
-      { label: "Blog", href: "/blog" },
       { label: "Eventos", href: "/eventos" },
     ],
   },
