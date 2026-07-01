@@ -16,11 +16,17 @@ import {
   Network,
   Quote,
   Image as ImageIcon,
+  BookOpen,
+  UserCheck,
+  UserCog,
 } from "lucide-react"
 import logo from "@/assets/logo-01.png"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/formacao", label: "Formação", icon: BookOpen },
+  { href: "/admin/analistas", label: "Analistas", icon: UserCheck },
+  { href: "/admin/supervisoes", label: "Supervisões", icon: UserCog },
   { href: "/admin/seminarios", label: "Seminários", icon: GraduationCap },
   { href: "/admin/eventos", label: "Eventos", icon: Calendar },
   { href: "/admin/carteis", label: "Cartéis", icon: Network },

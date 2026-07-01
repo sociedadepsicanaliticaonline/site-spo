@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FileText, GraduationCap, Calendar, Settings, ArrowRight, Network, Quote, Image as ImageIcon } from "lucide-react"
+import { FileText, GraduationCap, Calendar, Settings, ArrowRight, Network, Quote, BookOpen, UserCheck, UserCog } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -11,9 +11,35 @@ import {
   useAdminEvents,
   useAdminCartels,
   useAdminTestimonials,
+  useAdminAnalysts,
+  useAdminSupervisions,
 } from "@/hooks"
 
 const sections = [
+  {
+    title: "Formação",
+    description: "Textos das páginas de formação",
+    href: "/admin/formacao",
+    icon: BookOpen,
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
+  {
+    title: "Analistas",
+    description: "Analistas credenciados",
+    href: "/admin/analistas",
+    icon: UserCheck,
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
+  {
+    title: "Supervisões",
+    description: "Grupos de supervisão",
+    href: "/admin/supervisoes",
+    icon: UserCog,
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
   {
     title: "Blog",
     description: "Gerencie artigos e reflexões",
@@ -62,13 +88,18 @@ export default function AdminDashboardPage() {
   const { events, isLoaded: eventsLoaded } = useAdminEvents()
   const { carteis, isLoaded: carteisLoaded } = useAdminCartels()
   const { testimonials, isLoaded: testimonialsLoaded } = useAdminTestimonials()
+  const { analysts, isLoaded: analystsLoaded } = useAdminAnalysts()
+  const { supervisions, isLoaded: supervisionsLoaded } = useAdminSupervisions()
 
-  const counts = {
+  const counts: Record<string, number | string> = {
     Blog: postsLoaded ? posts.length : "—",
     Seminários: coursesLoaded ? courses.length : "—",
     Eventos: eventsLoaded ? events.length : "—",
     Cartéis: carteisLoaded ? carteis.length : "—",
     Testemunhos: testimonialsLoaded ? testimonials.length : "—",
+    Analistas: analystsLoaded ? analysts.length : "—",
+    Supervisões: supervisionsLoaded ? supervisions.length : "—",
+    Formação: "3",
   }
 
   return (
@@ -90,7 +121,7 @@ export default function AdminDashboardPage() {
                   <div className={`p-2 rounded-lg ${section.bg}`}>
                     <Icon className={`h-5 w-5 ${section.color}`} />
                   </div>
-                  <span className="heading-md text-text">{counts[section.title as keyof typeof counts]}</span>
+                  <span className="heading-md text-text">{counts[section.title]}</span>
                 </div>
                 <CardTitle className="text-lg mt-3">{section.title}</CardTitle>
                 <CardDescription>{section.description}</CardDescription>

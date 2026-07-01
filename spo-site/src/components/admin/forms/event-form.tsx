@@ -53,6 +53,7 @@ export function EventForm({ event }: EventFormProps) {
       date: new Date().toISOString().split("T")[0],
       time: "",
       location: "",
+      kind: "evento",
       type: "online",
       image: "",
       price: undefined,
@@ -185,11 +186,27 @@ export function EventForm({ event }: EventFormProps) {
               {...register("location")}
             />
             <Controller
+              name="kind"
+              control={control}
+              render={({ field }) => (
+                <FormSelect
+                  label="Tipo de entrada"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  options={[
+                    { value: "evento", label: "Evento (ocorre uma única vez)" },
+                    { value: "programacao", label: "Programação (recorrente)" },
+                  ]}
+                  error={errors.kind}
+                />
+              )}
+            />
+            <Controller
               name="type"
               control={control}
               render={({ field }) => (
                 <FormSelect
-                  label="Tipo"
+                  label="Modalidade"
                   value={field.value}
                   onValueChange={field.onChange}
                   options={[

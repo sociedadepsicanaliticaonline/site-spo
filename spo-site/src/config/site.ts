@@ -7,7 +7,7 @@ export const siteConfig: SiteConfig = {
     "Formação e Saber em Psicanálise. A Sociedade Psicanalítica Online dedica-se à transmissão da psicanálise clássica e contemporânea.",
   url: "https://spo.com.br",
   email: "contato@spo.com.br",
-  whatsapp: "5511999999999",
+  whatsapp: "5522998391755",
   phone: "+55 (11) 99999-9999",
   address: "São Paulo, SP",
   socialLinks: [

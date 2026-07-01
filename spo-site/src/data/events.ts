@@ -12,6 +12,7 @@ export const events: Event[] = [
     date: "2024-09-15",
     time: "19:30",
     location: "Online via Zoom",
+    kind: "evento",
     type: "online",
     image: "/images/events/event-01.jpg",
     available: true,
@@ -33,6 +34,7 @@ export const events: Event[] = [
     date: "2024-09-22",
     time: "09:00",
     location: "Auditório SPO (Online)",
+    kind: "evento",
     type: "online",
     image: "/images/events/event-02.jpg",
     price: 0,
@@ -55,6 +57,7 @@ export const events: Event[] = [
     date: "2024-10-05",
     time: "10:00",
     location: "Centro de Convenções - SP",
+    kind: "evento",
     type: "presencial",
     image: "/images/events/event-03.jpg",
     price: 250,
@@ -75,6 +78,7 @@ export const events: Event[] = [
     date: "2024-10-10",
     time: "19:00",
     location: "Online via Zoom",
+    kind: "programacao",
     type: "online",
     image: "/images/events/event-04.jpg",
     available: true,
@@ -94,6 +98,7 @@ export const events: Event[] = [
     date: "2024-10-20",
     time: "18:00",
     location: "Livraria Linha do Tempo - São Paulo",
+    kind: "evento",
     type: "hibrido",
     image: "/images/events/event-05.jpg",
     available: true,
@@ -108,6 +113,14 @@ export const events: Event[] = [
 
 export function getUpcomingEvents(): Event[] {
   return events.filter((event) => event.available && event.featured)
+}
+
+export function getEventos(): Event[] {
+  return events.filter((event) => event.kind === "evento")
+}
+
+export function getProgramacoes(): Event[] {
+  return events.filter((event) => event.kind === "programacao")
 }
 
 export function getPastEvents(): Event[] {

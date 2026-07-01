@@ -19,6 +19,11 @@ const typeLabels = {
   hibrido: "Híbrido",
 }
 
+const kindLabels = {
+  evento: "Evento",
+  programacao: "Programação",
+}
+
 export default function AdminEventosPage() {
   const router = useRouter()
   const { events, remove } = useAdminEvents()
@@ -85,8 +90,18 @@ export default function AdminEventosPage() {
             cell: (event) => `${formatDate(event.date)} às ${event.time}`,
           },
           {
+            key: "kind",
+            header: "Tipo de entrada",
+            width: "160px",
+            cell: (event) => (
+              <Badge variant={event.kind === "programacao" ? "secondary" : "default"}>
+                {kindLabels[event.kind]}
+              </Badge>
+            ),
+          },
+          {
             key: "type",
-            header: "Tipo",
+            header: "Modalidade",
             cell: (event) => <Badge variant="accent">{typeLabels[event.type]}</Badge>,
           },
           {

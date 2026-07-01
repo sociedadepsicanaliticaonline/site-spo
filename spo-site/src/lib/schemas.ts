@@ -63,6 +63,9 @@ export const eventSchema = z.object({
   date: z.string().min(1, "Data é obrigatória"),
   time: z.string().min(1, "Horário é obrigatório"),
   location: z.string().min(1, "Local é obrigatório"),
+  kind: z.enum(["evento", "programacao"], {
+    message: "Selecione se é um evento ou uma programação",
+  }),
   type: z.enum(["online", "presencial", "hibrido"]),
   image: z.string().min(1, "Imagem é obrigatória"),
   price: z.coerce.number().optional(),
@@ -114,6 +117,35 @@ export const cartelSchema = z.object({
   createdAt: z.string().min(1, "Data de criação é obrigatória"),
 })
 
+export const analystSchema = z.object({
+  id: z.string(),
+  name: z.string().min(2, "Nome do analista é obrigatório"),
+  state: z.string().min(1, "Estado é obrigatório"),
+  city: z.string().min(1, "Cidade é obrigatória"),
+  whatsapp: z.string().min(8, "WhatsApp é obrigatório"),
+  available: z.boolean().default(true),
+  createdAt: z.string().min(1, "Data de cadastro é obrigatória"),
+})
+
+export const supervisionSchema = z.object({
+  id: z.string(),
+  supervisorName: z.string().min(2, "Nome do supervisor é obrigatório"),
+  date: z.string().min(1, "Data é obrigatória"),
+  time: z.string().min(1, "Horário é obrigatório"),
+  frequency: z.string().min(1, "Frequência é obrigatória"),
+  whatsapp: z.string().min(8, "WhatsApp é obrigatório"),
+  description: z.string().optional(),
+  available: z.boolean().default(true),
+  createdAt: z.string().min(1, "Data de cadastro é obrigatória"),
+})
+
+export const formacaoContentSchema = z.object({
+  id: z.string(),
+  key: z.enum(["nossa-proposta", "analises-intro", "supervisoes-intro"]),
+  content: z.string().min(1, "Conteúdo é obrigatório"),
+  updatedAt: z.string().min(1, "Data de atualização é obrigatória"),
+})
+
 export const socialLinkSchema = z.object({
   label: z.string().min(1, "Nome da rede é obrigatório"),
   href: z.string().min(1, "URL é obrigatória"),
@@ -144,3 +176,6 @@ export type CoordinatorFormData = z.infer<typeof coordinatorSchema>
 export type CartelFormData = z.infer<typeof cartelSchema>
 export type TestimonialFormData = z.infer<typeof testimonialSchema>
 export type SiteConfigFormData = z.infer<typeof siteConfigSchema>
+export type AnalystFormData = z.infer<typeof analystSchema>
+export type SupervisionFormData = z.infer<typeof supervisionSchema>
+export type FormacaoContentFormData = z.infer<typeof formacaoContentSchema>

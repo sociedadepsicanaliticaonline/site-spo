@@ -6,17 +6,26 @@ export const footerColumns: FooterColumn[] = [
     title: "Navegação",
     links: [
       { label: "Home", href: "/" },
-      { label: "Seminários", href: "/seminarios" },
       { label: "Sobre", href: "/sobre" },
-      { label: "Blog", href: "/blog" },
       { label: "Eventos", href: "/eventos" },
+      { label: "Blog", href: "/blog" },
+    ],
+  },
+  {
+    id: "formacao",
+    title: "Formação",
+    links: [
+      { label: "Nossa Proposta", href: "/formacao/nossa-proposta" },
+      { label: "Análises", href: "/formacao/analises" },
+      { label: "Supervisões", href: "/formacao/supervisoes" },
+      { label: "Seminários", href: "/seminarios" },
+      { label: "Cartéis", href: "/carteis" },
     ],
   },
   {
     id: "institucional",
     title: "Institucional",
     links: [
-      { label: "Cartéis", href: "/carteis" },
       { label: "Nossa (Re)Vista", href: "/nossa-revista" },
       { label: "Nossos Livros", href: "/nossos-livros" },
       { label: "Produção Psicanalítica", href: "/producao-psicanalitica" },

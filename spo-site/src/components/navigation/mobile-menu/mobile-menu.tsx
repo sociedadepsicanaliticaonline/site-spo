@@ -3,18 +3,19 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X } from "lucide-react"
+import { Menu, X, ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { mainNavigation } from "@/data/navigation"
-import { Button } from "@/components/ui/button"
 
 function MobileMenu() {
   const [open, setOpen] = React.useState(false)
+  const [expanded, setExpanded] = React.useState<string | null>(null)
   const pathname = usePathname()
 
   React.useEffect(() => {
     setOpen(false)
+    setExpanded(null)
   }, [pathname])
 
   React.useEffect(() => {
@@ -43,21 +44,73 @@ function MobileMenu() {
         <div className="fixed inset-0 top-16 z-40 bg-white md:hidden">
           <nav className="flex flex-col p-6 gap-2" aria-label="Mobile">
             {mainNavigation.map((item) => {
-              const isActive = pathname === item.href
+              const hasChildren = !!item.children?.length
+              const childHrefs = item.children?.map((child) => child.href) ?? []
+              const isActive = pathname === item.href ||
+                childHrefs.some((h) => pathname === h || pathname.startsWith(h + "/"))
+              const isExpanded = expanded === item.id
+
+              if (!hasChildren) {
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className={cn(
+                      "px-4 py-3 rounded-lg body-md font-medium transition-colors",
+                      isActive
+                        ? "text-primary bg-primary/5"
+                        : "text-text hover:text-primary hover:bg-surface"
+                    )}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              }
+
               return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={cn(
-                    "px-4 py-3 rounded-lg body-md font-medium transition-colors",
-                    isActive
-                      ? "text-primary bg-primary/5"
-                      : "text-text hover:text-primary hover:bg-surface"
+                <div key={item.id} className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(isExpanded ? null : item.id)}
+                    className={cn(
+                      "flex items-center justify-between w-full px-4 py-3 rounded-lg body-md font-medium transition-colors",
+                      isActive
+                        ? "text-primary bg-primary/5"
+                        : "text-text hover:text-primary hover:bg-surface"
+                    )}
+                    aria-expanded={isExpanded}
+                  >
+                    {item.label}
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        isExpanded && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {isExpanded && (
+                    <div className="pl-4 mt-1 mb-2 border-l-2 border-border ml-4 flex flex-col gap-1">
+                      {item.children!.map((child) => {
+                        const childActive = pathname === child.href
+                        return (
+                          <Link
+                            key={child.id}
+                            href={child.href}
+                            className={cn(
+                              "px-3 py-2 rounded-lg body-sm font-medium transition-colors",
+                              childActive
+                                ? "text-primary bg-primary/5"
+                                : "text-text-light hover:text-primary hover:bg-surface"
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        )
+                      })}
+                    </div>
                   )}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
+                </div>
               )
             })}
             <div className="mt-4 pt-4 border-t border-border">

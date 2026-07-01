@@ -39,6 +39,11 @@ export default async function EventoSlugPage({ params }: Props) {
     hibrido: "Híbrido",
   }
 
+  const kindLabel = {
+    evento: "Evento pontual",
+    programacao: "Programação recorrente",
+  }
+
   const eventSchema = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -123,7 +128,11 @@ export default async function EventoSlugPage({ params }: Props) {
                 </div>
 
                 <div className="p-6 rounded-xl border border-border bg-surface text-center space-y-4">
-                  <p className="body-sm text-text-light">Tipo</p>
+                  <p className="body-sm text-text-light">Tipo de entrada</p>
+                  <Badge variant={event.kind === "programacao" ? "secondary" : "default"} className="body-md">
+                    {kindLabel[event.kind]}
+                  </Badge>
+                  <p className="body-sm text-text-light pt-2">Modalidade</p>
                   <Badge variant="accent" className="body-md">{typeLabel[event.type]}</Badge>
                   {event.price !== undefined && (
                     <>

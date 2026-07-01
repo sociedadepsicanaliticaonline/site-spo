@@ -1,10 +1,11 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Container } from "@/components/layout/container"
 import { Logo } from "@/components/shared/logo"
 import { SocialIcons } from "@/components/shared/social-icons"
 import { footerColumns } from "@/data/footer"
 import { siteConfig } from "@/config/site"
-import { Newsletter } from "@/components/shared/newsletter"
+import escLogo from "@/assets/logo-esc.png"
 
 function Footer() {
   return (
@@ -42,21 +43,33 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <Newsletter variant="light" />
-        </div>
       </Container>
-      <div className="border-t border-white/10 py-6">
-        <Container className="flex flex-col md:flex-row items-center justify-between gap-4 body-sm text-white/40">
+      <div className="border-t border-white/10">
+        <Container className="flex flex-col gap-6 py-6 md:flex-row md:items-center md:justify-between body-sm text-white/40">
           <p>
             © {new Date().getFullYear()} {siteConfig.title}. Todos os direitos reservados.
           </p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-3">
             <Link href="/termos-de-uso" className="hover:text-white transition-colors">
               Termos de Uso
             </Link>
             <Link href="/politica-de-privacidade" className="hover:text-white transition-colors">
               Privacidade
+            </Link>
+            <Link
+              href="https://escdev.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 hover:text-white transition-colors"
+              aria-label="Feito com carinho por EscDev"
+            >
+              <span>Feito com carinho por:</span>
+              <Image
+                src={escLogo}
+                alt="EscDev"
+                className="h-[42px] w-auto"
+                unoptimized
+              />
             </Link>
           </div>
         </Container>

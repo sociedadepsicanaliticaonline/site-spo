@@ -68,6 +68,7 @@ export interface Event {
   date: string
   time: string
   location: string
+  kind: "evento" | "programacao"
   type: "online" | "presencial" | "hibrido"
   image: string
   price?: number
@@ -104,6 +105,40 @@ export interface Cartel {
   moreOneWhatsapp: string
   available: boolean
   createdAt: string
+}
+
+export interface Analyst {
+  id: string
+  name: string
+  state: string
+  city: string
+  whatsapp: string
+  available: boolean
+  createdAt: string
+}
+
+export interface Supervision {
+  id: string
+  supervisorName: string
+  date: string
+  time: string
+  frequency: string
+  whatsapp: string
+  description?: string
+  available: boolean
+  createdAt: string
+}
+
+export type FormacaoContentKey =
+  | "nossa-proposta"
+  | "analises-intro"
+  | "supervisoes-intro"
+
+export interface FormacaoContent {
+  id: string
+  key: FormacaoContentKey
+  content: string
+  updatedAt: string
 }
 
 export interface MediaItem {
