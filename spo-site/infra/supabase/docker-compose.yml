@@ -1,0 +1,166 @@
+# Supabase self-hosted enxuto para Coolify
+# Versão simplificada do docker-compose oficial do Supabase
+# Repo oficial: https://github.com/supabase/supabase/tree/master/docker
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: supabase-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # GoTrue (auth)
+  auth:
+    image: supabase/gotrue:v2.177.0
+    container_name: supabase-auth
+    restart: unless-stopped
+    environment:
+      GOTRUE_TRUSTED_GATEWAYS: "0.0.0.0/0"
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: "*"
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_DB_DRIVER: "postgres"
+      GOTRUE_DB_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?search_path=auth
+      GOTRUE_SMTP_HOST: ""
+      GOTRUE_SMTP_PORT: "587"
+      GOTRUE_SMTP_USER: ""
+      GOTRUE_SMTP_PASS: ""
+      GOTRUE_SMTP_ADMIN_EMAIL: ""
+      GOTRUE_SMTP_SENDER_NAME: ""
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # PostgREST (API)
+  rest:
+    image: postgrest/postgrest:v12.2.3
+    container_name: supabase-rest
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_SERVER_PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Realtime
+  realtime:
+    image: supabase/realtime:v2.34.1
+    container_name: supabase-realtime
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      DB_AFTER_CONNECT_QUERY: >-
+        SET search_path TO "$user", public, auth, extensions;
+        ALTER ROLE authenticated SET search_path = "$user", public, auth, extensions;
+      JWT_SECRET: ${JWT_SECRET}
+      API_JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${JWT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Storage
+  storage:
+    image: supabase/storage-api:v1.25.10
+    container_name: supabase-storage
+    restart: unless-stopped
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+    volumes:
+      - supabase-storage-data:/var/lib/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+
+  # Studio (web UI)
+  studio:
+    image: supabase/studio:20241224-094538
+    container_name: supabase-studio
+    restart: unless-stopped
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_PROJECT_ID: 001
+      DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT}
+      DEFAULT_ORGANIZATION_NAME: SPO
+      DEFAULT_ORGANIZATION_SLUG: spo
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      AUTH_JWT_SECRET: ${JWT_SECRET}
+      LOGFLARE_API_KEY: ""
+      LOGFLARE_URL: ""
+      NEXT_PUBLIC_ENABLE_LOGS: "false"
+      SENTRY_DSN: ""
+    ports:
+      - "${STUDIO_PORT}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Meta API (used by Studio)
+  meta:
+    image: supabase/postgres-meta:v1.1.1
+    container_name: supabase-meta
+    restart: unless-stopped
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Kong (API Gateway)
+  kong:
+    image: kong:2.8.1
+    container_name: supabase-kong
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+      KONG_PASSWORD: ${DASHBOARD_PASSWORD}
+      KONG_ADMIN: "off"
+    volumes:
+      - ./kong.yml:/home/kong/kong.yml:ro
+    ports:
+      - "${KONG_HTTP_PORT}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  supabase-db-data:
+  supabase-storage-data:

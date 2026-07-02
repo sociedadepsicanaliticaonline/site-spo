@@ -1,0 +1,2 @@
+-- Bootstrap Supabase roles
+-- (Empty for now — Drizzle migration will create the schema)
