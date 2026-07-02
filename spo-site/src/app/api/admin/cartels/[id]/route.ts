@@ -1,7 +1,5 @@
 import { withAuth } from "@/lib/api"
-import { getDb } from "@/db"
-import { cartells } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
@@ -11,8 +9,9 @@ export async function DELETE(
 ) {
   return withAuth(async () => {
     const { id } = await params
-    const db = getDb()
-    await db.delete(cartells).where(eq(cartells.id, id))
+    const supabase = getSupabaseAdmin()
+    const { error } = await supabase.from("cartells").delete().eq("id", id)
+    if (error) throw error
     return { success: true }
   })
 }

@@ -1,40 +1,49 @@
-import { withAuth, generateId } from "@/lib/api"
-import { getDb } from "@/db"
-import { analysts } from "@/db/schema"
-import { analystSchema } from "@/lib/schemas"
-import { eq } from "drizzle-orm"
+import { withAuth } from "@/lib/api"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
+interface DbAnalyst {
+  id: string
+  name: string
+  state: string
+  city: string
+  whatsapp: string
+  available: boolean
+  created_at: string
+}
+
 export async function GET() {
   return withAuth(async () => {
-    const db = getDb()
-    return db.select().from(analysts)
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from("analysts")
+      .select("*")
+      .order("name", { ascending: true })
+      .returns<DbAnalyst[]>()
+    if (error) throw error
+    return data ?? []
   })
 }
 
 export async function POST(req: Request) {
   return withAuth(async () => {
     const body = await req.json()
-    const parsed = analystSchema.parse(body)
-    const db = getDb()
-    const id = parsed.id || generateId()
-    const existing = await db.select().from(analysts).where(eq(analysts.id, id)).limit(1)
-    const data = {
+    const supabase = getSupabaseAdmin()
+    const id = body.id || `analista-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+
+    const row: Partial<DbAnalyst> = {
       id,
-      name: parsed.name,
-      state: parsed.state,
-      city: parsed.city,
-      whatsapp: parsed.whatsapp,
-      available: parsed.available,
-      createdAt: parsed.createdAt,
+      name: body.name,
+      state: body.state,
+      city: body.city,
+      whatsapp: body.whatsapp,
+      available: body.available ?? true,
+      created_at: body.createdAt ?? new Date().toISOString().split("T")[0],
     }
-    if (existing.length > 0) {
-      await db.update(analysts).set(data).where(eq(analysts.id, id))
-    } else {
-      await db.insert(analysts).values(data)
-    }
-    const [saved] = await db.select().from(analysts).where(eq(analysts.id, id))
-    return saved
+
+    const { error } = await supabase.from("analysts").upsert(row).select().single()
+    if (error) throw error
+    return row
   })
 }

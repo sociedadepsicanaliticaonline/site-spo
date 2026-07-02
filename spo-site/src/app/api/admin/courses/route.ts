@@ -1,71 +1,85 @@
-import { withAuth, generateId } from "@/lib/api"
-import { getDb } from "@/db"
-import { courses, courseTags } from "@/db/schema"
-import { courseSchema } from "@/lib/schemas"
-import { eq } from "drizzle-orm"
+import { withAuth } from "@/lib/api"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
+interface DbCourse {
+  id: string
+  title: string
+  slug: string
+  description: string
+  long_description: string
+  price: number
+  image: string
+  category_id: string
+  instructor_id: string
+  duration: string
+  workload: string
+  level: string
+  featured: boolean
+  available: boolean
+  created_at: string
+}
+
 export async function GET() {
   return withAuth(async () => {
-    const db = getDb()
-    return db.select().from(courses)
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from("courses")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .returns<DbCourse[]>()
+    if (error) throw error
+    return data ?? []
   })
 }
 
 export async function POST(req: Request) {
   return withAuth(async () => {
     const body = await req.json()
-    const parsed = courseSchema.parse(body)
-    const db = getDb()
-    const id = parsed.id || generateId()
-    const tagsList = Array.isArray((body as { tags?: unknown }).tags)
-      ? ((body as { tags: Array<{ id: string }> }).tags)
-      : []
+    const supabase = getSupabaseAdmin()
+    const id = body.id || `curso-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const tags: Array<{ id: string }> = Array.isArray(body.tags) ? body.tags : []
 
-    const existing = await db.select().from(courses).where(eq(courses.id, id)).limit(1)
-
-    if (existing.length > 0) {
-      await db.update(courses).set({
-        title: parsed.title,
-        slug: parsed.slug,
-        description: parsed.description,
-        longDescription: parsed.longDescription ?? "",
-        price: parsed.price,
-        image: parsed.image,
-        categoryId: parsed.category.id,
-        instructorId: parsed.instructor.id,
-        duration: parsed.duration,
-        workload: parsed.workload,
-        level: parsed.level,
-        featured: parsed.featured,
-        available: parsed.available,
-      }).where(eq(courses.id, id))
-    } else {
-      await db.insert(courses).values({
-        id,
-        title: parsed.title,
-        slug: parsed.slug,
-        description: parsed.description,
-        longDescription: parsed.longDescription ?? "",
-        price: parsed.price,
-        image: parsed.image,
-        categoryId: parsed.category.id,
-        instructorId: parsed.instructor.id,
-        duration: parsed.duration,
-        workload: parsed.workload,
-        level: parsed.level,
-        featured: parsed.featured,
-        available: parsed.available,
-      })
+    const row: Partial<DbCourse> = {
+      id,
+      title: body.title,
+      slug: body.slug,
+      description: body.description,
+      long_description: body.longDescription ?? "",
+      price: body.price ?? 0,
+      image: body.image ?? "",
+      category_id: body.category?.id ?? body.category_id,
+      instructor_id: body.instructor?.id ?? body.instructor_id,
+      duration: body.duration ?? "",
+      workload: body.workload ?? "",
+      level: body.level ?? "intermediário",
+      featured: body.featured ?? false,
+      available: body.available ?? true,
     }
 
-    await db.delete(courseTags).where(eq(courseTags.courseId, id))
-    if (tagsList.length > 0) {
-      await db.insert(courseTags).values(tagsList.map((t) => ({ courseId: id, tagId: t.id })))
+    const { error: upsertErr } = await supabase
+      .from("courses")
+      .upsert(row)
+      .select()
+      .single()
+    if (upsertErr) throw upsertErr
+
+    await supabase.from("course_tags").delete().eq("course_id", id)
+    if (tags.length > 0) {
+      const { error: tagsErr } = await supabase
+        .from("course_tags")
+        .insert(tags.map((t) => ({ course_id: id, tag_id: t.id })))
+      if (tagsErr) throw tagsErr
     }
 
-    const [saved] = await db.select().from(courses).where(eq(courses.id, id))
-    return saved
-  })
+    const { data, error } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .returns<DbCourse>()
+    if (error) throw error
+    return data
+  });
 }

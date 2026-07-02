@@ -1,16 +1,22 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import { eq } from "drizzle-orm"
 import { z } from "zod"
 import { authConfig } from "@/auth.config"
-import { getDb } from "@/db"
-import { users } from "@/db/schema"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 })
+
+interface DbUser {
+  id: string
+  name: string
+  email: string
+  password_hash: string
+  role: "admin" | "superadmin"
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -26,23 +32,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { email, password } = parsed.data
         try {
-          const db = getDb()
-          const [user] = await db
-            .select()
-            .from(users)
-            .where(eq(users.email, email.toLowerCase()))
-            .limit(1)
+          const supabase = getSupabaseAdmin()
+          const { data: user } = await supabase
+            .from("users")
+            .select("*")
+            .eq("email", email.toLowerCase())
+            .maybeSingle()
 
           if (!user) return null
 
-          const ok = await bcrypt.compare(password, user.passwordHash)
+          const userRow = user as DbUser
+          const ok = await bcrypt.compare(password, userRow.password_hash)
           if (!ok) return null
 
           return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
+            id: userRow.id,
+            name: userRow.name,
+            email: userRow.email,
+            role: userRow.role,
           }
         } catch (err) {
           console.error("[auth:authorize]", err)

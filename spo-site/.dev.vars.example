@@ -1,16 +1,17 @@
 # Variáveis de ambiente locais (NÃO comitar — este arquivo é apenas template)
 # Copie para .dev.vars e preencha os valores reais. .dev.vars está no .gitignore.
 
-# === Banco de dados PostgreSQL (Coolify) ===
-DATABASE_URL=postgresql://spo:SUA_SENHA@SEU_HOST:5432/spo
+# === Supabase (REST API via PostgREST) ===
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
 # === NextAuth.js (Auth.js v5) ===
-AUTH_SECRET=
-AUTH_URL=http://localhost:3000
+AUTH_SECRET=qualquer-string-secreta-com-32-caracteres
 
-# === Cloudflare R2 (storage de mídia) ===
+# === Cloudflare R2 (storage de mídia) — opcional, ainda em migração ===
 R2_ACCOUNT_ID=
 R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
 R2_BUCKET=spo-media
-R2_PUBLIC_URL=https://pub-XXXXXXXX.r2.dev
+R2_PUBLIC_URL=https://pub-XXXXXX.r2.dev

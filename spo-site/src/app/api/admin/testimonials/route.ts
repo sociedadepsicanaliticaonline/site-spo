@@ -1,41 +1,51 @@
-import { withAuth, generateId } from "@/lib/api"
-import { getDb } from "@/db"
-import { testimonials } from "@/db/schema"
-import { testimonialSchema } from "@/lib/schemas"
-import { eq } from "drizzle-orm"
+import { withAuth } from "@/lib/api"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
+interface DbTestimonial {
+  id: string
+  name: string
+  role: string
+  avatar: string
+  content: string
+  rating: number | null
+  featured: boolean
+  created_at: string
+}
+
 export async function GET() {
   return withAuth(async () => {
-    const db = getDb()
-    return db.select().from(testimonials)
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from("testimonials")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .returns<DbTestimonial[]>()
+    if (error) throw error
+    return data ?? []
   })
 }
 
 export async function POST(req: Request) {
   return withAuth(async () => {
     const body = await req.json()
-    const parsed = testimonialSchema.parse(body)
-    const db = getDb()
-    const id = parsed.id || generateId()
-    const existing = await db.select().from(testimonials).where(eq(testimonials.id, id)).limit(1)
-    const data = {
+    const supabase = getSupabaseAdmin()
+    const id = body.id || `testemunho-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+
+    const row: Partial<DbTestimonial> = {
       id,
-      name: parsed.name,
-      role: parsed.role,
-      avatar: parsed.avatar,
-      content: parsed.content,
-      rating: parsed.rating ?? null,
-      featured: parsed.featured ?? false,
-      createdAt: parsed.createdAt,
+      name: body.name,
+      role: body.role,
+      avatar: body.avatar ?? "",
+      content: body.content,
+      rating: body.rating ?? null,
+      featured: body.featured ?? false,
+      created_at: body.createdAt ?? new Date().toISOString().split("T")[0],
     }
-    if (existing.length > 0) {
-      await db.update(testimonials).set(data).where(eq(testimonials.id, id))
-    } else {
-      await db.insert(testimonials).values(data)
-    }
-    const [saved] = await db.select().from(testimonials).where(eq(testimonials.id, id))
-    return saved
+
+    const { error } = await supabase.from("testimonials").upsert(row).select().single()
+    if (error) throw error
+    return row
   })
 }

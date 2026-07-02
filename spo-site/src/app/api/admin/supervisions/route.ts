@@ -1,42 +1,53 @@
-import { withAuth, generateId } from "@/lib/api"
-import { getDb } from "@/db"
-import { supervisions } from "@/db/schema"
-import { supervisionSchema } from "@/lib/schemas"
-import { eq } from "drizzle-orm"
+import { withAuth } from "@/lib/api"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
+interface DbSupervision {
+  id: string
+  supervisor_name: string
+  date: string
+  time: string
+  frequency: string
+  whatsapp: string
+  description: string
+  available: boolean
+  created_at: string
+}
+
 export async function GET() {
   return withAuth(async () => {
-    const db = getDb()
-    return db.select().from(supervisions)
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from("supervisions")
+      .select("*")
+      .order("date", { ascending: true })
+      .returns<DbSupervision[]>()
+    if (error) throw error
+    return data ?? []
   })
 }
 
 export async function POST(req: Request) {
   return withAuth(async () => {
     const body = await req.json()
-    const parsed = supervisionSchema.parse(body)
-    const db = getDb()
-    const id = parsed.id || generateId()
-    const existing = await db.select().from(supervisions).where(eq(supervisions.id, id)).limit(1)
-    const data = {
+    const supabase = getSupabaseAdmin()
+    const id = body.id || `supervisao-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+
+    const row: Partial<DbSupervision> = {
       id,
-      supervisorName: parsed.supervisorName,
-      date: parsed.date,
-      time: parsed.time,
-      frequency: parsed.frequency,
-      whatsapp: parsed.whatsapp,
-      description: parsed.description ?? "",
-      available: parsed.available,
-      createdAt: parsed.createdAt,
+      supervisor_name: body.supervisorName,
+      date: body.date,
+      time: body.time,
+      frequency: body.frequency,
+      whatsapp: body.whatsapp,
+      description: body.description ?? "",
+      available: body.available ?? true,
+      created_at: body.createdAt ?? new Date().toISOString().split("T")[0],
     }
-    if (existing.length > 0) {
-      await db.update(supervisions).set(data).where(eq(supervisions.id, id))
-    } else {
-      await db.insert(supervisions).values(data)
-    }
-    const [saved] = await db.select().from(supervisions).where(eq(supervisions.id, id))
-    return saved
+
+    const { error } = await supabase.from("supervisions").upsert(row).select().single()
+    if (error) throw error
+    return row
   })
 }

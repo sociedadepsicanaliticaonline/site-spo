@@ -1,84 +1,86 @@
-import { withAuth, generateId } from "@/lib/api"
-import { getDb } from "@/db"
-import { events, eventTags } from "@/db/schema"
-import { eventSchema } from "@/lib/schemas"
-import { eq } from "drizzle-orm"
+import { withAuth } from "@/lib/api"
+import { getSupabaseAdmin } from "@/lib/supabase"
 
 export const dynamic = "force-dynamic"
 
+interface DbEvent {
+  id: string
+  title: string
+  slug: string
+  description: string
+  long_description: string
+  date: string
+  time: string
+  location: string
+  kind: "evento" | "programacao"
+  type: "online" | "presencial" | "hibrido"
+  image: string
+  price: number | null
+  available: boolean
+  featured: boolean
+  category_id: string
+}
+
 export async function GET() {
   return withAuth(async () => {
-    const db = getDb()
-    const rows = await db.select().from(events)
-    return rows
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("date", { ascending: false })
+      .returns<DbEvent[]>()
+    if (error) throw error
+    return data ?? []
   })
 }
 
 export async function POST(req: Request) {
   return withAuth(async () => {
     const body = await req.json()
-    const parsed = eventSchema.parse(body)
-    const db = getDb()
+    const supabase = getSupabaseAdmin()
+    const id = body.id || `evento-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    const tags: Array<{ id: string }> = Array.isArray(body.tags) ? body.tags : []
 
-    const existing = await db
+    const row: Partial<DbEvent> = {
+      id,
+      title: body.title,
+      slug: body.slug,
+      description: body.description,
+      long_description: body.longDescription ?? "",
+      date: body.date,
+      time: body.time,
+      location: body.location,
+      kind: body.kind,
+      type: body.type,
+      image: body.image ?? "",
+      price: body.price ?? null,
+      available: body.available ?? true,
+      featured: body.featured ?? false,
+      category_id: body.category?.id ?? body.category_id,
+    }
+
+    const { error: upsertErr } = await supabase
+      .from("events")
+      .upsert(row)
       .select()
-      .from(events)
-      .where(eq(events.id, parsed.id))
-      .limit(1)
+      .single()
+    if (upsertErr) throw upsertErr
 
-    const id = existing.length > 0 ? parsed.id : parsed.id || generateId()
-    const tagsList = Array.isArray((body as { tags?: unknown }).tags)
-      ? ((body as { tags: Array<{ id: string }> }).tags)
-      : []
-
-    if (existing.length > 0) {
-      await db
-        .update(events)
-        .set({
-          title: parsed.title,
-          slug: parsed.slug,
-          description: parsed.description,
-          longDescription: parsed.longDescription ?? "",
-          date: parsed.date,
-          time: parsed.time,
-          location: parsed.location,
-          kind: parsed.kind,
-          type: parsed.type,
-          image: parsed.image,
-          price: parsed.price ?? null,
-          available: parsed.available,
-          featured: parsed.featured,
-          categoryId: parsed.category.id,
-        })
-        .where(eq(events.id, id))
-    } else {
-      await db.insert(events).values({
-        id,
-        title: parsed.title,
-        slug: parsed.slug,
-        description: parsed.description,
-        longDescription: parsed.longDescription ?? "",
-        date: parsed.date,
-        time: parsed.time,
-        location: parsed.location,
-        kind: parsed.kind,
-        type: parsed.type,
-        image: parsed.image,
-        price: parsed.price ?? null,
-        available: parsed.available,
-        featured: parsed.featured,
-        categoryId: parsed.category.id,
-      })
+    await supabase.from("event_tags").delete().eq("event_id", id)
+    if (tags.length > 0) {
+      const { error: tagsErr } = await supabase
+        .from("event_tags")
+        .insert(tags.map((t) => ({ event_id: id, tag_id: t.id })))
+      if (tagsErr) throw tagsErr
     }
 
-    await db.delete(eventTags).where(eq(eventTags.eventId, id))
-    if (tagsList.length > 0) {
-      await db
-        .insert(eventTags)
-        .values(tagsList.map((t) => ({ eventId: id, tagId: t.id })))
-    }
-
-    const [saved] = await db.select().from(events).where(eq(events.id, id))
-    return saved
-  })
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .returns<DbEvent>()
+    if (error) throw error
+    return data
+  });
 }
