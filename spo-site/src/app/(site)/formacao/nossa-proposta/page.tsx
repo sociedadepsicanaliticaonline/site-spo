@@ -1,10 +1,12 @@
 import { HeroSection } from "@/components/sections/hero-section"
 import { BreadcrumbNav } from "@/components/navigation/breadcrumb-nav"
 import { Container } from "@/components/layout/container"
-import { getFormacaoContentByKey } from "@/data/formacao-content"
+import { getFormacaoContentByKey } from "@/db/queries"
 import { renderRichText } from "@/utils/sanitize"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Nossa Proposta",
@@ -13,8 +15,8 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/formacao/nossa-proposta` },
 }
 
-export default function NossaPropostaPage() {
-  const content = getFormacaoContentByKey("nossa-proposta")
+export default async function NossaPropostaPage() {
+  const content = await getFormacaoContentByKey("nossa-proposta")
 
   return (
     <>

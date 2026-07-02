@@ -7,12 +7,13 @@ import { Container } from "@/components/layout/container"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
 import { CardBase } from "@/components/cards/card-base"
 import { Badge } from "@/components/ui/badge"
-import { getAvailableSupervisions } from "@/data/supervisions"
-import { getFormacaoContentByKey } from "@/data/formacao-content"
+import { getAvailableSupervisions, getFormacaoContentByKey } from "@/db/queries"
 import { renderRichText } from "@/utils/sanitize"
 import { formatDate } from "@/utils/formatters"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Supervisões",
@@ -21,9 +22,11 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/formacao/supervisoes` },
 }
 
-export default function SupervisoesPage() {
-  const available = getAvailableSupervisions()
-  const content = getFormacaoContentByKey("supervisoes-intro")
+export default async function SupervisoesPage() {
+  const [available, content] = await Promise.all([
+    getAvailableSupervisions(),
+    getFormacaoContentByKey("supervisoes-intro"),
+  ])
 
   return (
     <>

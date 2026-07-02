@@ -4,22 +4,20 @@ import { HeroSection } from "@/components/sections/hero-section"
 import { CTASection } from "@/components/sections/cta-section"
 import { Container } from "@/components/layout/container"
 import { Badge } from "@/components/ui/badge"
-import { events } from "@/data/events"
+import { getEventBySlug, getAllEvents } from "@/db/queries"
 import { siteConfig } from "@/config/site"
 import { formatDate, formatPrice } from "@/utils/formatters"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 interface Props {
   params: Promise<{ slug: string }>
 }
 
-export async function generateStaticParams() {
-  return events.map((event) => ({ slug: event.slug }))
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const event = events.find((e) => e.slug === slug)
+  const event = await getEventBySlug(slug)
   if (!event) return {}
   return {
     title: event.title,
@@ -30,19 +28,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EventoSlugPage({ params }: Props) {
   const { slug } = await params
-  const event = events.find((e) => e.slug === slug)
+  const event = await getEventBySlug(slug)
   if (!event) notFound()
 
   const typeLabel = {
     online: "Online",
     presencial: "Presencial",
     hibrido: "Híbrido",
-  }
+  } as const
 
   const kindLabel = {
     evento: "Evento pontual",
     programacao: "Programação recorrente",
-  }
+  } as const
 
   const eventSchema = {
     "@context": "https://schema.org",

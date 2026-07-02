@@ -1,12 +1,13 @@
 import { HeroSection } from "@/components/sections/hero-section"
 import { CTASection } from "@/components/sections/cta-section"
 import { Container } from "@/components/layout/container"
-import { SectionHeader } from "@/components/sections/section-header"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
 import { CourseCard } from "@/components/cards/course-card"
-import { courses } from "@/data/courses"
+import { getAllCourses } from "@/db/queries"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Seminários",
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/seminarios` },
 }
 
-export default function CursosPage() {
+export default async function CursosPage() {
+  const allCourses = await getAllCourses()
+  const available = allCourses.filter((c) => c.available)
+
   return (
     <>
       <HeroSection
@@ -22,13 +26,13 @@ export default function CursosPage() {
         title="Nossos Seminários"
         subtitle="Formação Continuada"
         description="Seminários de formação em psicanálise com abordagem teórica e clínica, ministrados por profissionais experientes e reconhecidos."
-        badge={`${courses.length} seminários disponíveis`}
+        badge={`${available.length} seminários disponíveis`}
       />
 
       <section className="py-16 md:py-24 bg-surface">
         <Container>
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {courses.map((course) => (
+            {available.map((course) => (
               <StaggerItem key={course.id}>
                 <CourseCard course={course} />
               </StaggerItem>

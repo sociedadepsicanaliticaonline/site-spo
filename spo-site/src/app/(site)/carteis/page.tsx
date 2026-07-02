@@ -4,10 +4,12 @@ import { Container } from "@/components/layout/container"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
 import { CardBase } from "@/components/cards/card-base"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Repeat, MessageCircle } from "lucide-react"
-import { carteis, getAvailableCartels } from "@/data/carteis"
+import { Calendar, Clock, MessageCircle, Repeat } from "lucide-react"
+import { getAvailableCartels, getAllCartels } from "@/db/queries"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Cartéis",
@@ -16,9 +18,12 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/carteis` },
 }
 
-export default function CarteisPage() {
-  const available = getAvailableCartels()
-  const unavailable = carteis.filter((c) => !c.available)
+export default async function CarteisPage() {
+  const [available, all] = await Promise.all([
+    getAvailableCartels(),
+    getAllCartels(),
+  ])
+  const unavailable = all.filter((c) => !c.available)
 
   return (
     <>

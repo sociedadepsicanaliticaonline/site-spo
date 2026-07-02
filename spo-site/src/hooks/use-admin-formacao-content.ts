@@ -1,49 +1,50 @@
 "use client"
 
-import { useCallback, useState } from "react"
-import { formacaoContents } from "@/data/formacao-content"
-import {
-  getAdminData,
-  saveAdminItem,
-} from "@/lib/admin-store"
+import { useCallback, useEffect, useState } from "react"
 import type { FormacaoContent, FormacaoContentKey } from "@/types"
 
-const STORAGE_KEY = "formacao_contents"
-
-function ensureSeeded(): FormacaoContent[] {
-  const existing = getAdminData<FormacaoContent>(STORAGE_KEY, formacaoContents)
-  const existingKeys = new Set(existing.map((item) => item.key))
-  const missing = formacaoContents.filter((item) => !existingKeys.has(item.key))
-  if (missing.length === 0) return existing
-  const merged = [...existing, ...missing]
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.setItem(
-        `spo_admin_${STORAGE_KEY}`,
-        JSON.stringify(merged)
-      )
-    } catch {}
-  }
-  return merged
-}
-
 export function useAdminFormacaoContent() {
-  const [items, setItems] = useState<FormacaoContent[]>(() => ensureSeeded())
+  const [contents, setContents] = useState<FormacaoContent[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  const getByKey = useCallback((key: FormacaoContentKey) => {
-    const data = getAdminData<FormacaoContent>(STORAGE_KEY, formacaoContents)
-    return data.find((item) => item.key === key)
+  const refresh = useCallback(async () => {
+    const res = await fetch("/api/admin/formacao", { cache: "no-store" })
+    if (res.ok) {
+      const data = (await res.json()) as FormacaoContent[]
+      setContents(data)
+      setIsLoaded(true)
+    }
   }, [])
 
-  const save = useCallback((item: FormacaoContent) => {
-    const updated = saveAdminItem<FormacaoContent>(STORAGE_KEY, formacaoContents, item)
-    setItems(updated)
-    return updated
-  }, [])
+  useEffect(() => {
+    refresh()
+  }, [refresh])
+
+  const getByKey = useCallback(
+    (key: FormacaoContentKey) => contents.find((c) => c.key === key),
+    [contents]
+  )
+
+  const save = useCallback(
+    async (item: FormacaoContent) => {
+      const res = await fetch("/api/admin/formacao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      })
+      if (res.ok) {
+        await refresh()
+        return (await res.json()) as FormacaoContent
+      }
+      return null
+    },
+    [refresh]
+  )
 
   return {
-    formacaoContents: items,
-    isLoaded: true,
+    formacaoContents: contents,
+    isLoaded,
+    refresh,
     getByKey,
     save,
   }

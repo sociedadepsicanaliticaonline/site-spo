@@ -1,14 +1,14 @@
 import { Calendar, Repeat } from "lucide-react"
-
 import { HeroSection } from "@/components/sections/hero-section"
 import { CTASection } from "@/components/sections/cta-section"
 import { Container } from "@/components/layout/container"
-import { SectionHeader } from "@/components/sections/section-header"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
 import { EventCard } from "@/components/cards/event-card"
-import { getEventos, getProgramacoes } from "@/data/events"
+import { getEventos, getProgramacoes } from "@/db/queries"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Eventos",
@@ -16,9 +16,11 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/eventos` },
 }
 
-export default function EventosPage() {
-  const allEventos = getEventos()
-  const allProgramacoes = getProgramacoes()
+export default async function EventosPage() {
+  const [allEventos, allProgramacoes] = await Promise.all([
+    getEventos(),
+    getProgramacoes(),
+  ])
 
   const upcomingEventos = allEventos.filter((e) => e.available)
   const pastEventos = allEventos.filter((e) => !e.available)
@@ -66,11 +68,10 @@ export default function EventosPage() {
       {pastEventos.length > 0 && (
         <section className="py-16 md:py-24 bg-surface">
           <Container>
-            <SectionHeader
-              title="Eventos Anteriores"
-              subtitle="Arquivo"
-              description="Registro dos eventos já realizados pela SPO."
-            />
+            <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+              <h2 className="heading-md text-text">Eventos Anteriores</h2>
+              <p className="body-lg text-text-light">Registro dos eventos já realizados pela SPO.</p>
+            </div>
             <StaggerContainer className="space-y-4">
               {pastEventos.map((event) => (
                 <StaggerItem key={event.id}>

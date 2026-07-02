@@ -48,7 +48,7 @@ export function FormacaoContentForm({ contentKey }: FormacaoContentFormProps) {
 
   const content = watch("content")
 
-  const onSubmit = (data: FormacaoContentFormData) => {
+  const onSubmit = async (data: FormacaoContentFormData) => {
     try {
       const item: FormacaoContent = {
         id: data.id || `fc-${contentKey}`,
@@ -56,7 +56,7 @@ export function FormacaoContentForm({ contentKey }: FormacaoContentFormProps) {
         content: data.content,
         updatedAt: new Date().toISOString().split("T")[0],
       }
-      save(item)
+      await save(item)
       toast.success("Conteúdo atualizado com sucesso!")
     } catch {
       toast.error("Erro ao salvar o conteúdo.")

@@ -6,11 +6,11 @@ import { CoursesSection } from "@/components/sections/courses-section"
 import { EventsSection } from "@/components/sections/events-section"
 import { TestimonialsSection } from "@/components/sections/testimonials-section"
 import { CTASection } from "@/components/sections/cta-section"
-import { getFeaturedCourses } from "@/data/courses"
-import { getUpcomingEvents } from "@/data/events"
-import { testimonials } from "@/data/testimonials"
+import { getFeaturedCourses, getUpcomingEvents, getAllTestimonials } from "@/db/queries"
 import { BookOpen, Users, Globe, Heart } from "lucide-react"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Formação e Saber em Psicanálise",
@@ -24,9 +24,12 @@ export const metadata: Metadata = {
   },
 }
 
-export default function HomePage() {
-  const featuredCourses = getFeaturedCourses()
-  const upcomingEvents = getUpcomingEvents()
+export default async function HomePage() {
+  const [featuredCourses, upcomingEvents, testimonials] = await Promise.all([
+    getFeaturedCourses(),
+    getUpcomingEvents(),
+    getAllTestimonials(),
+  ])
 
   const schema = {
     "@context": "https://schema.org",
@@ -123,4 +126,3 @@ export default function HomePage() {
     </>
   )
 }
-

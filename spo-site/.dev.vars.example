@@ -1,0 +1,16 @@
+# Variáveis de ambiente locais (NÃO comitar — este arquivo é apenas template)
+# Copie para .dev.vars e preencha os valores reais. .dev.vars está no .gitignore.
+
+# === Banco de dados PostgreSQL (Coolify) ===
+DATABASE_URL=postgresql://spo:SUA_SENHA@SEU_HOST:5432/spo
+
+# === NextAuth.js (Auth.js v5) ===
+AUTH_SECRET=
+AUTH_URL=http://localhost:3000
+
+# === Cloudflare R2 (storage de mídia) ===
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET=spo-media
+R2_PUBLIC_URL=https://pub-XXXXXXXX.r2.dev

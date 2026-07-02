@@ -6,11 +6,12 @@ import { BreadcrumbNav } from "@/components/navigation/breadcrumb-nav"
 import { Container } from "@/components/layout/container"
 import { StaggerContainer, StaggerItem } from "@/components/shared/animations"
 import { CardBase } from "@/components/cards/card-base"
-import { getAvailableAnalysts } from "@/data/analysts"
-import { getFormacaoContentByKey } from "@/data/formacao-content"
+import { getAvailableAnalysts, getFormacaoContentByKey } from "@/db/queries"
 import { renderRichText } from "@/utils/sanitize"
 import { siteConfig } from "@/config/site"
 import type { Metadata } from "next"
+
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Análises",
@@ -19,9 +20,11 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteConfig.url}/formacao/analises` },
 }
 
-export default function AnalisesPage() {
-  const available = getAvailableAnalysts()
-  const content = getFormacaoContentByKey("analises-intro")
+export default async function AnalisesPage() {
+  const [available, content] = await Promise.all([
+    getAvailableAnalysts(),
+    getFormacaoContentByKey("analises-intro"),
+  ])
 
   return (
     <>
