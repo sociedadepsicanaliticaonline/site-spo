@@ -24,9 +24,20 @@ export async function GET() {
       .from("cartells")
       .select("*")
       .order("created_at", { ascending: false })
-      .returns<DbCartel[]>()
     if (error) throw error
-    return data ?? []
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      meetingDay: item.meeting_day ?? "",
+      meetingTime: item.meeting_time ?? "",
+      moreOneName: item.more_one_name ?? "",
+      moreOneWhatsapp: item.more_one_whatsapp ?? "",
+      createdAt: item.created_at ?? "",
+      meeting_day: undefined,
+      meeting_time: undefined,
+      more_one_name: undefined,
+      more_one_whatsapp: undefined,
+      created_at: undefined,
+    }))
   })
 }
 

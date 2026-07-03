@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { Calendar, Clock, MapPin, Tag, ArrowRight } from "lucide-react"
+import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react"
 import { HeroSection } from "@/components/sections/hero-section"
 import { CTASection } from "@/components/sections/cta-section"
 import { Container } from "@/components/layout/container"
@@ -67,7 +67,7 @@ export default async function EventoSlugPage({ params }: Props) {
       <HeroSection
         variant="event"
         title={event.title}
-        subtitle={event.category.name}
+        subtitle={typeLabel[event.type]}
         description={event.description}
         cta={event.available ? { id: "cta-evento-detail", title: "", description: "", buttonText: "Inscreva-se", buttonHref: "#inscricao", variant: "primary" } : undefined}
         badge={event.available ? "Inscrições Abertas" : "Evento Realizado"}
@@ -84,19 +84,6 @@ export default async function EventoSlugPage({ params }: Props) {
                 </div>
               </div>
 
-              {event.tags.length > 0 && (
-                <div className="border-t border-border pt-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Tag className="h-5 w-5 text-primary" />
-                    <h2 className="heading-md text-text">Tags</h2>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag) => (
-                      <Badge key={tag.id} variant="secondary">{tag.name}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="space-y-6">

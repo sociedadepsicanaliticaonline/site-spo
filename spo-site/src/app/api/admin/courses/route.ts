@@ -11,11 +11,9 @@ interface DbCourse {
   long_description: string
   price: number
   image: string
-  category_id: string
-  instructor_id: string
+  instructor_name: string
   duration: string
   workload: string
-  level: string
   featured: boolean
   available: boolean
   created_at: string
@@ -28,9 +26,16 @@ export async function GET() {
       .from("courses")
       .select("*")
       .order("created_at", { ascending: false })
-      .returns<DbCourse[]>()
     if (error) throw error
-    return data ?? []
+
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      longDescription: item.long_description ?? "",
+      createdAt: item.created_at ?? "",
+      instructorName: item.instructor_name ?? "",
+      long_description: undefined,
+      created_at: undefined,
+    }))
   })
 }
 
@@ -39,7 +44,6 @@ export async function POST(req: Request) {
     const body = await req.json()
     const supabase = getSupabaseAdmin()
     const id = body.id || `curso-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
-    const tags: Array<{ id: string }> = Array.isArray(body.tags) ? body.tags : []
 
     const row: Partial<DbCourse> = {
       id,
@@ -49,11 +53,9 @@ export async function POST(req: Request) {
       long_description: body.longDescription ?? "",
       price: body.price ?? 0,
       image: body.image ?? "",
-      category_id: body.category?.id ?? body.category_id,
-      instructor_id: body.instructor?.id ?? body.instructor_id,
+      instructor_name: body.instructorName ?? "",
       duration: body.duration ?? "",
       workload: body.workload ?? "",
-      level: body.level ?? "intermediário",
       featured: body.featured ?? false,
       available: body.available ?? true,
     }
@@ -65,21 +67,21 @@ export async function POST(req: Request) {
       .single()
     if (upsertErr) throw upsertErr
 
-    await supabase.from("course_tags").delete().eq("course_id", id)
-    if (tags.length > 0) {
-      const { error: tagsErr } = await supabase
-        .from("course_tags")
-        .insert(tags.map((t) => ({ course_id: id, tag_id: t.id })))
-      if (tagsErr) throw tagsErr
-    }
-
     const { data, error } = await supabase
       .from("courses")
       .select("*")
       .eq("id", id)
       .single()
-      .returns<DbCourse>()
-    if (error) throw error
-    return data
+    if (error || !data) throw error ?? new Error("Course not found")
+
+    const result = data as unknown as Record<string, unknown>
+    return {
+      ...result,
+      longDescription: result.long_description ?? "",
+      createdAt: result.created_at ?? "",
+      instructorName: result.instructor_name ?? "",
+      long_description: undefined,
+      created_at: undefined,
+    }
   });
 }

@@ -17,11 +17,6 @@ export const events: Event[] = [
     image: "/images/events/event-01.jpg",
     available: true,
     featured: true,
-    category: { id: "cat-3", name: "Webinário", slug: "webinario" },
-    tags: [
-      { id: "tag-1", name: "Freud", slug: "freud" },
-      { id: "tag-7", name: "Cultura", slug: "cultura" },
-    ],
   },
   {
     id: "evento-2",
@@ -40,11 +35,6 @@ export const events: Event[] = [
     price: 0,
     available: true,
     featured: true,
-    category: { id: "cat-4", name: "Jornada", slug: "jornada" },
-    tags: [
-      { id: "tag-8", name: "Clínica", slug: "clinica" },
-      { id: "tag-9", name: "Casos", slug: "casos" },
-    ],
   },
   {
     id: "evento-3",
@@ -63,11 +53,6 @@ export const events: Event[] = [
     price: 250,
     available: true,
     featured: true,
-    category: { id: "cat-5", name: "Congresso", slug: "congresso" },
-    tags: [
-      { id: "tag-10", name: "Formação", slug: "formacao" },
-      { id: "tag-11", name: "Internacional", slug: "internacional" },
-    ],
   },
   {
     id: "evento-4",
@@ -83,11 +68,6 @@ export const events: Event[] = [
     image: "/images/events/event-04.jpg",
     available: true,
     featured: false,
-    category: { id: "cat-6", name: "Grupo de Estudos", slug: "grupo-de-estudos" },
-    tags: [
-      { id: "tag-12", name: "Psicoses", slug: "psicoses" },
-      { id: "tag-13", name: "Diagnóstico", slug: "diagnostico" },
-    ],
   },
   {
     id: "evento-5",
@@ -103,11 +83,6 @@ export const events: Event[] = [
     image: "/images/events/event-05.jpg",
     available: true,
     featured: false,
-    category: { id: "cat-7", name: "Lançamento", slug: "lancamento" },
-    tags: [
-      { id: "tag-14", name: "Livro", slug: "livro" },
-      { id: "tag-15", name: "Publicação", slug: "publicacao" },
-    ],
   },
 ]
 

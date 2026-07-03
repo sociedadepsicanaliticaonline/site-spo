@@ -40,13 +40,14 @@ export function SiteConfigForm({ initialConfig }: SiteConfigFormProps) {
     name: "socialLinks",
   })
 
-  const onSubmit = (data: SiteConfigFormData) => {
+  const onSubmit = async (data: SiteConfigFormData) => {
     try {
-      save(data as SiteConfig)
+      await save(data as SiteConfig)
       toast.success("Configurações salvas com sucesso!")
       router.refresh()
-    } catch {
-      toast.error("Erro ao salvar as configurações.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar as configurações."
+      toast.error(message)
     }
   }
 

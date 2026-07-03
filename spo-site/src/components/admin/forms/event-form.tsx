@@ -13,23 +13,12 @@ import { FormInput, FormTextarea, FormCheckbox, FormSelect } from "@/components/
 import {
   AdminFormLayout,
   ImagePreview,
-  TagInput,
 } from "@/components/admin"
-import { Input } from "@/components/ui/input"
 import { slugify } from "@/utils/formatters"
-import { generateId } from "@/lib/admin-store"
-import type { Event, Category, Tag } from "@/types"
+import type { Event } from "@/types"
 
 interface EventFormProps {
   event?: Event
-}
-
-function createTag(name: string): Tag {
-  return { id: generateId(), name, slug: slugify(name) }
-}
-
-function createCategory(name: string): Category {
-  return { id: generateId(), name, slug: slugify(name) }
 }
 
 export function EventForm({ event }: EventFormProps) {
@@ -46,6 +35,7 @@ export function EventForm({ event }: EventFormProps) {
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema) as Resolver<EventFormData>,
     defaultValues: {
+      id: "",
       title: "",
       slug: "",
       description: "",
@@ -59,8 +49,6 @@ export function EventForm({ event }: EventFormProps) {
       price: undefined,
       available: true,
       featured: false,
-      category: { id: "", name: "", slug: "" },
-      tags: [],
       ...(event || {}),
     },
   })
@@ -70,27 +58,32 @@ export function EventForm({ event }: EventFormProps) {
 
   useEffect(() => {
     if (!event && title && !slug) {
-      setValue("slug", slugify(title), { shouldValidate: true })
+      setValue("slug", `${slugify(title)}-${Date.now().toString(36)}`, { shouldValidate: true })
     }
   }, [title, slug, setValue, event])
 
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = async (data: EventFormData) => {
     try {
       if (event) {
-        save(data as Event)
+        await save(data as Event)
         toast.success("Evento atualizado com sucesso!")
       } else {
-        create(data as Omit<Event, "id">)
+        await create(data as Omit<Event, "id">)
         toast.success("Evento criado com sucesso!")
       }
       router.push("/admin/eventos")
-    } catch {
-      toast.error("Erro ao salvar o evento.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar o evento."
+      toast.error(message)
     }
   }
 
+  const onError = () => {
+    toast.error("Corrija os erros no formulário antes de salvar.")
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <AdminFormLayout
         sidebar={
           <Card>
@@ -225,39 +218,6 @@ export function EventForm({ event }: EventFormProps) {
               step="0.01"
               error={errors.price}
               {...register("price")}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Categoria e Tags</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="body-sm font-medium text-text">Categoria</label>
-              <Input
-                placeholder="Nome da categoria"
-                value={watch("category.name")}
-                onChange={(e) =>
-                  setValue("category", createCategory(e.target.value), { shouldValidate: true })
-                }
-              />
-              {errors.category?.name && (
-                <p className="body-sm text-accent">{errors.category.name.message}</p>
-              )}
-            </div>
-            <Controller
-              name="tags"
-              control={control}
-              render={({ field }) => (
-                <TagInput
-                  label="Tags"
-                  values={field.value.map((t) => t.name)}
-                  onChange={(values) => field.onChange(values.map(createTag))}
-                  placeholder="Adicionar tag"
-                />
-              )}
             />
           </CardContent>
         </Card>

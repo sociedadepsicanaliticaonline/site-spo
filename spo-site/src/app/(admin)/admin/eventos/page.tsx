@@ -34,8 +34,7 @@ export default function AdminEventosPage() {
     const term = search.toLowerCase()
     return (
       event.title.toLowerCase().includes(term) ||
-      event.location.toLowerCase().includes(term) ||
-      event.category.name.toLowerCase().includes(term)
+      event.location.toLowerCase().includes(term)
     )
   })
 
@@ -78,11 +77,6 @@ export default function AdminEventosPage() {
                 </div>
               </div>
             ),
-          },
-          {
-            key: "category",
-            header: "Categoria",
-            cell: (event) => <Badge variant="secondary">{event.category.name}</Badge>,
           },
           {
             key: "date",

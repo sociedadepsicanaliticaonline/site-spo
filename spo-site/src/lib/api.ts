@@ -38,7 +38,7 @@ export async function withAuth<T>(
     }
     console.error("[api]", err)
     const message =
-      err instanceof Error ? err.message : "Erro interno do servidor"
+      err instanceof Error ? err.message : JSON.stringify(err) || "Erro interno do servidor"
     return apiError(500, message)
   }
 }

@@ -23,8 +23,7 @@ export default function AdminSeminariosPage() {
     const term = search.toLowerCase()
     return (
       course.title.toLowerCase().includes(term) ||
-      course.instructor.name.toLowerCase().includes(term) ||
-      course.category.name.toLowerCase().includes(term)
+      course.instructorName.toLowerCase().includes(term)
     )
   })
 
@@ -50,7 +49,7 @@ export default function AdminSeminariosPage() {
       <SearchFilter
         value={search}
         onChange={setSearch}
-        placeholder="Buscar por título, coordenador ou categoria..."
+        placeholder="Buscar por título ou coordenador..."
       />
 
       <DataTable<Course>
@@ -69,14 +68,9 @@ export default function AdminSeminariosPage() {
             ),
           },
           {
-            key: "category",
-            header: "Categoria",
-            cell: (course) => <Badge variant="secondary">{course.category.name}</Badge>,
-          },
-          {
-            key: "instructor",
+            key: "instructorName",
             header: "Coordenador",
-            cell: (course) => course.instructor.name,
+            cell: (course) => course.instructorName,
           },
           {
             key: "price",

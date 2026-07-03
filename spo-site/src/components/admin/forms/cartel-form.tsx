@@ -48,6 +48,7 @@ export function CartelForm({ cartel }: CartelFormProps) {
   } = useForm<CartelFormData>({
     resolver: zodResolver(cartelSchema) as Resolver<CartelFormData>,
     defaultValues: {
+      id: "",
       name: "",
       slug: "",
       description: "",
@@ -71,18 +72,19 @@ export function CartelForm({ cartel }: CartelFormProps) {
     }
   }, [name, slug, setValue, cartel])
 
-  const onSubmit = (data: CartelFormData) => {
+  const onSubmit = async (data: CartelFormData) => {
     try {
       if (cartel) {
-        save(data as Cartel)
+        await save(data as Cartel)
         toast.success("Cartel atualizado com sucesso!")
       } else {
-        create(data as Omit<Cartel, "id">)
+        await create(data as Omit<Cartel, "id">)
         toast.success("Cartel criado com sucesso!")
       }
       router.push("/admin/carteis")
-    } catch {
-      toast.error("Erro ao salvar o cartel.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar o cartel."
+      toast.error(message)
     }
   }
 

@@ -29,6 +29,7 @@ export function TestimonialForm({ testimonial }: TestimonialFormProps) {
   } = useForm<TestimonialFormData>({
     resolver: zodResolver(testimonialSchema) as Resolver<TestimonialFormData>,
     defaultValues: {
+      id: "",
       name: "",
       role: "",
       avatar: "",
@@ -40,18 +41,19 @@ export function TestimonialForm({ testimonial }: TestimonialFormProps) {
     },
   })
 
-  const onSubmit = (data: TestimonialFormData) => {
+  const onSubmit = async (data: TestimonialFormData) => {
     try {
       if (testimonial) {
-        save(data as Testimonial)
+        await save(data as Testimonial)
         toast.success("Testemunho atualizado com sucesso!")
       } else {
-        create(data as Omit<Testimonial, "id">)
+        await create(data as Omit<Testimonial, "id">)
         toast.success("Testemunho criado com sucesso!")
       }
       router.push("/admin/testemunhos")
-    } catch {
-      toast.error("Erro ao salvar o testemunho.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar o testemunho."
+      toast.error(message)
     }
   }
 

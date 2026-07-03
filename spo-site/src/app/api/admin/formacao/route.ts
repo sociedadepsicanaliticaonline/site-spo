@@ -16,9 +16,12 @@ export async function GET() {
     const { data, error } = await supabase
       .from("formacao_contents")
       .select("*")
-      .returns<DbFormacaoContent[]>()
     if (error) throw error
-    return data ?? []
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      updatedAt: item.updated_at ?? "",
+      updated_at: undefined,
+    }))
   })
 }
 

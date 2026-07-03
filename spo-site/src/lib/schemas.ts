@@ -28,14 +28,11 @@ export const courseSchema = z.object({
   longDescription: z.string().optional(),
   price: z.coerce.number().min(0, "Preço deve ser maior ou igual a 0"),
   image: z.string().min(1, "Imagem é obrigatória"),
-  category: categorySchema,
-  instructor: authorSchema,
+  instructorName: z.string().min(2, "Nome do coordenador é obrigatório"),
   duration: z.string().min(1, "Duração é obrigatória"),
   workload: z.string().min(1, "Carga horária é obrigatória"),
-  level: z.enum(["iniciante", "intermediário", "avançado"]),
   featured: z.boolean().default(false),
   available: z.boolean().default(true),
-  tags: z.array(tagSchema).default([]),
   createdAt: z.string().min(1, "Data de criação é obrigatória"),
 })
 
@@ -56,8 +53,6 @@ export const eventSchema = z.object({
   price: z.coerce.number().optional(),
   available: z.boolean().default(true),
   featured: z.boolean().default(false),
-  category: categorySchema,
-  tags: z.array(tagSchema).default([]),
 })
 
 export const coordinatorSchema = z.object({

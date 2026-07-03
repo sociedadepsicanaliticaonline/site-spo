@@ -22,9 +22,14 @@ export async function GET() {
       .from("supervisions")
       .select("*")
       .order("date", { ascending: true })
-      .returns<DbSupervision[]>()
     if (error) throw error
-    return data ?? []
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      supervisorName: item.supervisor_name ?? "",
+      createdAt: item.created_at ?? "",
+      supervisor_name: undefined,
+      created_at: undefined,
+    }))
   })
 }
 

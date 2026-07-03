@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Clock, BarChart3 } from "lucide-react"
+import { ArrowRight, Clock } from "lucide-react"
 import { CardBase } from "@/components/cards/card-base"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -11,12 +11,6 @@ interface CourseCardProps {
   course: Course
   variant?: "default" | "featured"
   className?: string
-}
-
-const levelColor = {
-  iniciante: "bg-green-100 text-green-800",
-  intermediário: "bg-yellow-100 text-yellow-800",
-  avançado: "bg-red-100 text-red-800",
 }
 
 function CourseCard({ course, variant = "default", className }: CourseCardProps) {
@@ -40,7 +34,6 @@ function CourseCard({ course, variant = "default", className }: CourseCardProps)
           </div>
           <div className="p-6 lg:p-8 flex flex-col justify-between">
             <div className="space-y-3 lg:space-y-4">
-              <Badge variant="secondary">{course.category.name}</Badge>
               <h3 className="heading-md text-text group-hover:text-primary transition-colors">
                 {course.title}
               </h3>
@@ -51,10 +44,6 @@ function CourseCard({ course, variant = "default", className }: CourseCardProps)
                 <span className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4 shrink-0" />
                   {course.duration}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <BarChart3 className="h-4 w-4 shrink-0" />
-                  {course.level}
                 </span>
               </div>
             </div>
@@ -90,12 +79,6 @@ function CourseCard({ course, variant = "default", className }: CourseCardProps)
         )}
       </div>
       <div className="p-5 sm:p-6 flex flex-col gap-3 flex-1">
-        <div className="flex items-center justify-between gap-2">
-          <Badge variant="secondary" className="shrink-0">{course.category.name}</Badge>
-          <span className={cn("body-sm px-2 py-0.5 rounded font-medium shrink-0", levelColor[course.level])}>
-            {course.level}
-          </span>
-        </div>
         <h3 className="heading-md text-text group-hover:text-primary transition-colors">
           {course.title}
         </h3>

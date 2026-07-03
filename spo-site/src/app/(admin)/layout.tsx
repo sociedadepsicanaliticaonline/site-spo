@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { signOut } from "next-auth/react"
 import {
   LayoutDashboard,
   GraduationCap,
@@ -12,6 +13,7 @@ import {
   Menu,
   X,
   ExternalLink,
+  LogOut,
   Network,
   Quote,
   Image as ImageIcon,
@@ -41,6 +43,11 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const isLoginPage = pathname === "/admin/login"
+
+  if (isLoginPage) {
+    return <>{children}</>
+  }
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -86,7 +93,7 @@ export default function AdminLayout({
               </Link>
             )
           })}
-          <div className="pt-4 mt-4 border-t border-gray-200">
+          <div className="pt-4 mt-4 border-t border-gray-200 space-y-1">
             <Link
               href="/"
               target="_blank"
@@ -95,6 +102,13 @@ export default function AdminLayout({
               <ExternalLink className="h-5 w-5 flex-shrink-0" />
               Ver Site
             </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors w-full text-left"
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              Sair
+            </button>
           </div>
         </nav>
       </aside>

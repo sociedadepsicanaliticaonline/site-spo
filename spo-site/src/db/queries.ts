@@ -9,9 +9,6 @@ import type {
   FormacaoContentKey,
   Testimonial,
   Coordinator,
-  Category,
-  Tag,
-  Author,
   SiteConfig,
 } from "@/types"
 
@@ -25,11 +22,9 @@ interface DbCourse {
   long_description: string
   price: number
   image: string
-  category_id: string
-  instructor_id: string
+  instructor_name: string
   duration: string
   workload: string
-  level: string
   featured: boolean
   available: boolean
   created_at: string
@@ -50,19 +45,6 @@ interface DbEvent {
   price: number | null
   available: boolean
   featured: boolean
-  category_id: string
-}
-
-interface DbCategory {
-  id: string
-  name: string
-  slug: string
-}
-
-interface DbTag {
-  id: string
-  name: string
-  slug: string
 }
 
 interface DbAuthor {
@@ -149,30 +131,7 @@ interface DbSiteConfig {
   updated_at: string
 }
 
-function mapCategory(row: DbCategory): Category {
-  return { id: row.id, name: row.name, slug: row.slug }
-}
-
-function mapTag(row: DbTag): Tag {
-  return { id: row.id, name: row.name, slug: row.slug }
-}
-
-function mapAuthor(row: DbAuthor): Author {
-  return {
-    id: row.id,
-    name: row.name,
-    avatar: row.avatar,
-    role: row.role,
-    bio: row.bio,
-  }
-}
-
-function toCourse(
-  row: DbCourse,
-  tagsList: Tag[],
-  category: Category,
-  instructor: Author
-): Course {
+function toCourse(row: DbCourse): Course {
   return {
     id: row.id,
     title: row.title,
@@ -181,23 +140,16 @@ function toCourse(
     longDescription: row.long_description,
     price: row.price,
     image: row.image,
-    category,
-    instructor,
+    instructorName: row.instructor_name,
     duration: row.duration,
     workload: row.workload,
-    level: row.level as Course["level"],
     featured: row.featured,
     available: row.available,
-    tags: tagsList,
     createdAt: row.created_at,
   }
 }
 
-function toEvent(
-  row: DbEvent,
-  tagsList: Tag[],
-  category: Category
-): Event {
+function toEvent(row: DbEvent): Event {
   return {
     id: row.id,
     title: row.title,
@@ -213,8 +165,6 @@ function toEvent(
     price: row.price ?? undefined,
     available: row.available,
     featured: row.featured,
-    category,
-    tags: tagsList,
   }
 }
 
@@ -303,43 +253,12 @@ function toSiteConfig(row: DbSiteConfig): SiteConfig {
 
 export async function getAllCourses(): Promise<Course[]> {
   const supabase = getSupabase()
-  const [courseRes, catRes, instrRes, ctRes, tagRes] = await Promise.all([
-    supabase.from("courses").select("*").returns<DbCourse[]>(),
-    supabase.from("categories").select("*").returns<DbCategory[]>(),
-    supabase.from("authors").select("*").returns<DbAuthor[]>(),
-    supabase.from("course_tags").select("*"),
-    supabase.from("tags").select("*").returns<DbTag[]>(),
-  ])
-
-  if (courseRes.error) throw courseRes.error
-  if (catRes.error) throw catRes.error
-  if (instrRes.error) throw instrRes.error
-  if (ctRes.error) throw ctRes.error
-  if (tagRes.error) throw tagRes.error
-
-  const catById = new Map((catRes.data ?? []).map((c) => [c.id, c]))
-  const instrById = new Map((instrRes.data ?? []).map((a) => [a.id, a]))
-  const tagById = new Map((tagRes.data ?? []).map((t) => [t.id, t]))
-
-  const tagsByCourse = new Map<string, Tag[]>()
-  for (const ct of ctRes.data ?? []) {
-    const t = tagById.get(ct.tag_id)
-    if (!t) continue
-    const list = tagsByCourse.get(ct.course_id) ?? []
-    list.push(t)
-    tagsByCourse.set(ct.course_id, list)
-  }
-
-  return (courseRes.data ?? []).map((c) => {
-    const cat = catById.get(c.category_id) ?? { id: c.category_id, name: "", slug: "" }
-    const instr = instrById.get(c.instructor_id) ?? {
-      id: c.instructor_id,
-      name: "",
-      avatar: "",
-      role: "",
-    }
-    return toCourse(c, tagsByCourse.get(c.id) ?? [], cat, instr as Author)
-  })
+  const { data, error } = await supabase
+    .from("courses")
+    .select("*")
+    .returns<DbCourse[]>()
+  if (error) throw error
+  return (data ?? []).map(toCourse)
 }
 
 export async function getFeaturedCourses(): Promise<Course[]> {
@@ -353,34 +272,13 @@ export async function getCourseBySlug(slug: string): Promise<Course | undefined>
 
 export async function getAllEvents(): Promise<Event[]> {
   const supabase = getSupabase()
-  const [eventRes, catRes, etRes, tagRes] = await Promise.all([
-    supabase.from("events").select("*").returns<DbEvent[]>(),
-    supabase.from("categories").select("*").returns<DbCategory[]>(),
-    supabase.from("event_tags").select("*"),
-    supabase.from("tags").select("*").returns<DbTag[]>(),
-  ])
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .returns<DbEvent[]>()
 
-  if (eventRes.error) throw eventRes.error
-  if (catRes.error) throw catRes.error
-  if (etRes.error) throw etRes.error
-  if (tagRes.error) throw tagRes.error
-
-  const catById = new Map((catRes.data ?? []).map((c) => [c.id, c]))
-  const tagById = new Map((tagRes.data ?? []).map((t) => [t.id, t]))
-
-  const tagsByEvent = new Map<string, Tag[]>()
-  for (const et of etRes.data ?? []) {
-    const t = tagById.get(et.tag_id)
-    if (!t) continue
-    const list = tagsByEvent.get(et.event_id) ?? []
-    list.push(t)
-    tagsByEvent.set(et.event_id, list)
-  }
-
-  return (eventRes.data ?? []).map((e) => {
-    const cat = catById.get(e.category_id) ?? { id: e.category_id, name: "", slug: "" }
-    return toEvent(e, tagsByEvent.get(e.id) ?? [], cat)
-  })
+  if (error) throw error
+  return (data ?? []).map((e) => toEvent(e))
 }
 
 export async function getUpcomingEvents(): Promise<Event[]> {

@@ -28,6 +28,7 @@ export function AnalystForm({ analyst }: AnalystFormProps) {
   } = useForm<AnalystFormData>({
     resolver: zodResolver(analystSchema) as Resolver<AnalystFormData>,
     defaultValues: {
+      id: "",
       name: "",
       state: "",
       city: "",
@@ -38,18 +39,19 @@ export function AnalystForm({ analyst }: AnalystFormProps) {
     },
   })
 
-  const onSubmit = (data: AnalystFormData) => {
+  const onSubmit = async (data: AnalystFormData) => {
     try {
       if (analyst) {
-        save(data as Analyst)
+        await save(data as Analyst)
         toast.success("Analista atualizado com sucesso!")
       } else {
-        create(data as Omit<Analyst, "id">)
+        await create(data as Omit<Analyst, "id">)
         toast.success("Analista criado com sucesso!")
       }
       router.push("/admin/analistas")
-    } catch {
-      toast.error("Erro ao salvar o analista.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar o analista."
+      toast.error(message)
     }
   }
 

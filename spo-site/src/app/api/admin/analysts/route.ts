@@ -20,9 +20,12 @@ export async function GET() {
       .from("analysts")
       .select("*")
       .order("name", { ascending: true })
-      .returns<DbAnalyst[]>()
     if (error) throw error
-    return data ?? []
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      createdAt: item.created_at ?? "",
+      created_at: undefined,
+    }))
   })
 }
 

@@ -31,7 +31,7 @@ export default async function SeminarioSlugPage({ params }: Props) {
   if (!course) notFound()
   const allCourses = await getAllCourses()
   const related = allCourses
-    .filter((c) => c.id !== course.id && c.category.id === course.category.id)
+    .filter((c) => c.id !== course.id)
     .slice(0, 3)
 
   return (
@@ -39,7 +39,7 @@ export default async function SeminarioSlugPage({ params }: Props) {
       <HeroSection
         variant="internal"
         title={course.title}
-        subtitle={course.category.name}
+        subtitle={course.instructorName}
         description={course.description}
         badge={course.available ? "Inscrições Abertas" : "Encerrado"}
       />
@@ -62,8 +62,8 @@ export default async function SeminarioSlugPage({ params }: Props) {
               <p className="body-md font-medium text-text">{course.workload}</p>
             </div>
             <div>
-              <p className="body-sm text-text-light">Nível</p>
-              <p className="body-md font-medium text-text capitalize">{course.level}</p>
+              <p className="body-sm text-text-light">Coordenador</p>
+              <p className="body-md font-medium text-text">{course.instructorName}</p>
             </div>
             <div>
               <p className="body-sm text-text-light">Investimento</p>

@@ -7,12 +7,11 @@ import {
   timestamp,
   date,
   time,
-  primaryKey,
   index,
   uniqueIndex,
   pgEnum,
 } from "drizzle-orm/pg-core"
-import { relations, sql } from "drizzle-orm"
+import { sql } from "drizzle-orm"
 
 export const eventKindEnum = pgEnum("event_kind", ["evento", "programacao"])
 export const eventTypeEnum = pgEnum("event_type", ["online", "presencial", "hibrido"])
@@ -27,30 +26,6 @@ export const users = pgTable("users", {
   role: userRoleEnum("role").notNull().default("admin"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 })
-
-export const categories = pgTable(
-  "categories",
-  {
-    id: varchar("id", { length: 80 }).primaryKey(),
-    name: varchar("name", { length: 200 }).notNull(),
-    slug: varchar("slug", { length: 200 }).notNull(),
-  },
-  (t) => ({
-    slugIdx: uniqueIndex("categories_slug_idx").on(t.slug),
-  })
-)
-
-export const tags = pgTable(
-  "tags",
-  {
-    id: varchar("id", { length: 80 }).primaryKey(),
-    name: varchar("name", { length: 200 }).notNull(),
-    slug: varchar("slug", { length: 200 }).notNull(),
-  },
-  (t) => ({
-    slugIdx: uniqueIndex("tags_slug_idx").on(t.slug),
-  })
-)
 
 export const authors = pgTable(
   "authors",
@@ -81,33 +56,15 @@ export const courses = pgTable(
     longDescription: text("long_description").notNull().default(""),
     price: integer("price").notNull().default(0),
     image: text("image").notNull().default(""),
-    categoryId: varchar("category_id", { length: 80 }).notNull(),
-    instructorId: varchar("instructor_id", { length: 80 }).notNull(),
+    instructorName: varchar("instructor_name", { length: 300 }).notNull().default(""),
     duration: varchar("duration", { length: 80 }).notNull().default(""),
     workload: varchar("workload", { length: 80 }).notNull().default(""),
-    level: varchar("level", { length: 40 }).notNull().default("intermediário"),
     featured: boolean("featured").notNull().default(false),
     available: boolean("available").notNull().default(true),
     createdAt: date("created_at").notNull().default(sql`CURRENT_DATE`),
   },
   (t) => ({
     slugIdx: uniqueIndex("courses_slug_idx").on(t.slug),
-    categoryIdx: index("courses_category_idx").on(t.categoryId),
-  })
-)
-
-export const courseTags = pgTable(
-  "course_tags",
-  {
-    courseId: varchar("course_id", { length: 80 })
-      .notNull()
-      .references(() => courses.id, { onDelete: "cascade" }),
-    tagId: varchar("tag_id", { length: 80 })
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade" }),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.courseId, t.tagId] }),
   })
 )
 
@@ -128,27 +85,11 @@ export const events = pgTable(
     price: integer("price"),
     available: boolean("available").notNull().default(true),
     featured: boolean("featured").notNull().default(false),
-    categoryId: varchar("category_id", { length: 80 }).notNull(),
   },
   (t) => ({
     slugIdx: uniqueIndex("events_slug_idx").on(t.slug),
     dateIdx: index("events_date_idx").on(t.date),
     kindIdx: index("events_kind_idx").on(t.kind),
-  })
-)
-
-export const eventTags = pgTable(
-  "event_tags",
-  {
-    eventId: varchar("event_id", { length: 80 })
-      .notNull()
-      .references(() => events.id, { onDelete: "cascade" }),
-    tagId: varchar("tag_id", { length: 80 })
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade" }),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.eventId, t.tagId] }),
   })
 )
 
@@ -245,48 +186,6 @@ export const siteConfig = pgTable("site_config", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const courseRelations = relations(courses, ({ one, many }) => ({
-  category: one(categories, {
-    fields: [courses.categoryId],
-    references: [categories.id],
-  }),
-  instructor: one(authors, {
-    fields: [courses.instructorId],
-    references: [authors.id],
-  }),
-  tags: many(courseTags),
-}))
-
-export const eventRelations = relations(events, ({ one, many }) => ({
-  category: one(categories, {
-    fields: [events.categoryId],
-    references: [categories.id],
-  }),
-  tags: many(eventTags),
-}))
-
-export const courseTagsRelations = relations(courseTags, ({ one }) => ({
-  course: one(courses, {
-    fields: [courseTags.courseId],
-    references: [courses.id],
-  }),
-  tag: one(tags, {
-    fields: [courseTags.tagId],
-    references: [tags.id],
-  }),
-}))
-
-export const eventTagsRelations = relations(eventTags, ({ one }) => ({
-  event: one(events, {
-    fields: [eventTags.eventId],
-    references: [events.id],
-  }),
-  tag: one(tags, {
-    fields: [eventTags.tagId],
-    references: [tags.id],
-  }),
-}))
-
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type CourseRow = typeof courses.$inferSelect
@@ -298,6 +197,4 @@ export type FormacaoContentRow = typeof formacaoContents.$inferSelect
 export type TestimonialRow = typeof testimonials.$inferSelect
 export type MediaRow = typeof media.$inferSelect
 export type AuthorRow = typeof authors.$inferSelect
-export type CategoryRow = typeof categories.$inferSelect
-export type TagRow = typeof tags.$inferSelect
 export type SiteConfigRow = typeof siteConfig.$inferSelect

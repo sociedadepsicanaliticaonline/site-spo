@@ -18,7 +18,6 @@ interface DbEvent {
   price: number | null
   available: boolean
   featured: boolean
-  category_id: string
 }
 
 export async function GET() {
@@ -28,9 +27,13 @@ export async function GET() {
       .from("events")
       .select("*")
       .order("date", { ascending: false })
-      .returns<DbEvent[]>()
     if (error) throw error
-    return data ?? []
+
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      longDescription: item.long_description ?? "",
+      long_description: undefined,
+    }))
   })
 }
 
@@ -39,7 +42,6 @@ export async function POST(req: Request) {
     const body = await req.json()
     const supabase = getSupabaseAdmin()
     const id = body.id || `evento-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
-    const tags: Array<{ id: string }> = Array.isArray(body.tags) ? body.tags : []
 
     const row: Partial<DbEvent> = {
       id,
@@ -53,10 +55,9 @@ export async function POST(req: Request) {
       kind: body.kind,
       type: body.type,
       image: body.image ?? "",
-      price: body.price ?? null,
+      price: body.price != null ? Number(body.price) : null,
       available: body.available ?? true,
       featured: body.featured ?? false,
-      category_id: body.category?.id ?? body.category_id,
     }
 
     const { error: upsertErr } = await supabase
@@ -66,21 +67,16 @@ export async function POST(req: Request) {
       .single()
     if (upsertErr) throw upsertErr
 
-    await supabase.from("event_tags").delete().eq("event_id", id)
-    if (tags.length > 0) {
-      const { error: tagsErr } = await supabase
-        .from("event_tags")
-        .insert(tags.map((t) => ({ event_id: id, tag_id: t.id })))
-      if (tagsErr) throw tagsErr
-    }
-
     const { data, error } = await supabase
       .from("events")
       .select("*")
       .eq("id", id)
       .single()
-      .returns<DbEvent>()
     if (error) throw error
-    return data
+    return {
+      ...data,
+      longDescription: (data as Record<string, unknown>).long_description ?? "",
+      long_description: undefined,
+    }
   });
 }

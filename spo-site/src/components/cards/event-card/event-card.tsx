@@ -26,7 +26,6 @@ function EventCard({ event, variant = "default", className }: EventCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <Badge variant="secondary" className="caption">{event.category.name}</Badge>
             <Badge variant="accent" className="caption">{event.type}</Badge>
           </div>
           <h4 className="heading-md text-text group-hover:text-primary transition-colors">
@@ -66,7 +65,6 @@ function EventCard({ event, variant = "default", className }: EventCardProps) {
             </span>
           </div>
           <div>
-            <Badge variant="secondary" className="mb-1">{event.category.name}</Badge>
             <Badge variant="accent" className="ml-1">{event.type}</Badge>
           </div>
         </div>

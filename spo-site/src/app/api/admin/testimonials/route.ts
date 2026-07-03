@@ -21,9 +21,12 @@ export async function GET() {
       .from("testimonials")
       .select("*")
       .order("created_at", { ascending: false })
-      .returns<DbTestimonial[]>()
     if (error) throw error
-    return data ?? []
+    return (data ?? []).map((item: Record<string, unknown>) => ({
+      ...item,
+      createdAt: item.created_at ?? "",
+      created_at: undefined,
+    }))
   })
 }
 

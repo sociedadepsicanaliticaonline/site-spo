@@ -1,14 +1,7 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import {
-  getAdminData,
-  saveAdminData,
-  generateId,
-} from "@/lib/admin-store"
+import { useState, useCallback, useEffect } from "react"
 import type { MediaItem } from "@/types"
-
-const STORAGE_KEY = "media"
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024
 const MAX_PDF_SIZE = 3 * 1024 * 1024
@@ -62,13 +55,25 @@ export interface UploadResult {
 }
 
 export function useAdminMedia() {
-  const [items, setItems] = useState<MediaItem[]>(() =>
-    getAdminData(STORAGE_KEY, [] as MediaItem[])
-  )
+  const [items, setItems] = useState<MediaItem[]>([])
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  const refresh = useCallback(() => {
-    setItems(getAdminData(STORAGE_KEY, [] as MediaItem[]))
+  const fetchItems = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/media")
+      if (!res.ok) throw new Error("Falha ao carregar mídia")
+      const data = await res.json()
+      setItems(data)
+    } catch {
+      console.error("Erro ao carregar mídia do servidor")
+    } finally {
+      setIsLoaded(true)
+    }
   }, [])
+
+  useEffect(() => {
+    fetchItems()
+  }, [fetchItems])
 
   const upload = useCallback(
     async (file: File): Promise<UploadResult> => {
@@ -87,29 +92,30 @@ export function useAdminMedia() {
           return { success: false, error: "PDF muito grande (máx. 3MB)." }
         }
 
-        let dataUrl: string
+        let uploadFile: File
 
         if (isImage) {
           const blob = await resizeImage(file)
-          dataUrl = await readFileAsDataURL(new File([blob], file.name, { type: "image/jpeg" }))
+          uploadFile = new File([blob], file.name, { type: "image/jpeg" })
         } else {
-          dataUrl = await readFileAsDataURL(file)
+          uploadFile = file
         }
 
-        const item: MediaItem = {
-          id: generateId(),
-          name: file.name,
-          type: isImage ? "image" : "pdf",
-          mimeType: isImage ? "image/jpeg" : file.type,
-          size: file.size,
-          url: dataUrl,
-          uploadedAt: new Date().toISOString(),
+        const formData = new FormData()
+        formData.append("file", uploadFile)
+
+        const res = await fetch("/api/admin/media/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Erro no upload" }))
+          return { success: false, error: err.error || "Erro no upload" }
         }
 
-        const current = getAdminData<MediaItem>(STORAGE_KEY, [])
-        const updated = [item, ...current]
-        saveAdminData(STORAGE_KEY, updated)
-        setItems(updated)
+        const item: MediaItem = await res.json()
+        setItems((prev) => [item, ...prev])
         return { success: true, item }
       } catch (err) {
         return {
@@ -121,18 +127,24 @@ export function useAdminMedia() {
     []
   )
 
-  const remove = useCallback((id: string) => {
-    const current = getAdminData<MediaItem>(STORAGE_KEY, [])
-    const updated = current.filter((m) => m.id !== id)
-    saveAdminData(STORAGE_KEY, updated)
-    setItems(updated)
+  const remove = useCallback(async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/media/${id}`, { method: "DELETE" })
+      if (!res.ok) {
+        console.error("Falha ao excluir arquivo")
+        return
+      }
+      setItems((prev) => prev.filter((m) => m.id !== id))
+    } catch {
+      console.error("Erro ao excluir arquivo")
+    }
   }, [])
 
   return {
     items,
-    isLoaded: true,
+    isLoaded,
     upload,
     remove,
-    refresh,
+    refresh: fetchItems,
   }
 }

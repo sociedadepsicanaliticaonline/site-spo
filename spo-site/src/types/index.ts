@@ -33,14 +33,11 @@ export interface Course {
   longDescription?: string
   price: number
   image: string
-  category: Category
-  instructor: Author
+  instructorName: string
   duration: string
   workload: string
-  level: "iniciante" | "intermediário" | "avançado"
   featured: boolean
   available: boolean
-  tags: Tag[]
   createdAt: string
 }
 
@@ -59,8 +56,6 @@ export interface Event {
   price?: number
   available: boolean
   featured: boolean
-  category: Category
-  tags: Tag[]
 }
 
 export interface Coordinator {

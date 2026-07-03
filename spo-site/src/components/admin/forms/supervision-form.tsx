@@ -34,6 +34,7 @@ export function SupervisionForm({ supervision }: SupervisionFormProps) {
   } = useForm<SupervisionFormData>({
     resolver: zodResolver(supervisionSchema) as Resolver<SupervisionFormData>,
     defaultValues: {
+      id: "",
       supervisorName: "",
       date: "",
       time: "",
@@ -46,18 +47,19 @@ export function SupervisionForm({ supervision }: SupervisionFormProps) {
     },
   })
 
-  const onSubmit = (data: SupervisionFormData) => {
+  const onSubmit = async (data: SupervisionFormData) => {
     try {
       if (supervision) {
-        save(data as Supervision)
+        await save(data as Supervision)
         toast.success("Supervisão atualizada com sucesso!")
       } else {
-        create(data as Omit<Supervision, "id">)
+        await create(data as Omit<Supervision, "id">)
         toast.success("Supervisão criada com sucesso!")
       }
       router.push("/admin/supervisoes")
-    } catch {
-      toast.error("Erro ao salvar a supervisão.")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar a supervisão."
+      toast.error(message)
     }
   }
 
