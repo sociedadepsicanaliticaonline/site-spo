@@ -25,7 +25,7 @@ export default async function CursosPage() {
         variant="internal"
         title="Nossos Seminários"
         subtitle="Formação Continuada"
-        description="Seminários de formação em psicanálise com abordagem teórica e clínica, ministrados por profissionais experientes e reconhecidos."
+        description="O termo seminário tem origem no latim seminarium, que significa &ldquo;lugar de semear&rdquo;, remetendo à ideia de cultivo e desenvolvimento. Lacan denominou de Seminários um dos principais dispositivos de formação continuada de sua Escola, concebendo-os não como espaços de transmissão de um saber pronto, mas de elaboração permanente, onde a leitura, o estudo e o debate promovem o avanço da formação e da prática psicanalítica."
         badge={`${available.length} seminários disponíveis`}
       />
 
@@ -43,9 +43,9 @@ export default async function CursosPage() {
 
       <CTASection
         variant="vertical"
-        title="Não encontrou o seminário ideal?"
-        description="Entre em contato conosco para receber orientação personalizada sobre qual seminário atende melhor suas necessidades."
-        cta={{ id: "cta-seminarios", title: "", description: "", buttonText: "Fale Conosco", buttonHref: `https://wa.me/${siteConfig.whatsapp}`, variant: "primary" }}
+        title="Precisando de Orientação para seu Percurso Formativo?"
+        description="Entre em contato conosco para receber orientação personalizada."
+        cta={{ id: "cta-seminarios", title: "", description: "", buttonText: "Fale Conosco", buttonHref: "https://wa.me/5522998391755", variant: "primary" }}
       />
     </>
   )
